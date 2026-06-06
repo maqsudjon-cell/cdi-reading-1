@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-fontsize="md">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>CDI Reading 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1115; --surface:#171a21; --surface-2:#1e222b; --line:#2b303c; --line-2:#3a4150;
+  --text:#e6e9ef; --muted:#9aa3b2; --accent:#5b8dff; --accent-2:#9aa9ff;
+  --good:#39c172; --bad:#ff6b6b; --warn:#ffb454; --hl-y:#f5d76e; --hl-g:#86e8a0; --hl-p:#ff9bd0;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+  --r:10px;
+}
+html[data-theme="light"]{
+  --bg:#f5f7fb; --surface:#ffffff; --surface-2:#f0f3f9; --line:#dfe4ee; --line-2:#c8cfde;
+  --text:#1a1f2a; --muted:#5b6577; --accent:#2956d6; --accent-2:#5b78d6;
+  --good:#1a9e58; --bad:#cc3030; --warn:#b8770a; --hl-y:#fff08a; --hl-g:#b9f5c5; --hl-p:#ffc6e2;
+  --shadow:0 8px 22px rgba(31,52,99,.12);
+}
+html[data-theme="hc"]{
+  --bg:#000; --surface:#000; --surface-2:#111; --line:#fff; --line-2:#fff;
+  --text:#fff; --muted:#ffd000; --accent:#ffe600; --accent-2:#ffe600;
+  --good:#39ff39; --bad:#ff3939; --warn:#ffe600; --hl-y:#ffe600; --hl-g:#39ff39; --hl-p:#ff66cc;
+  --shadow:none;
+}
+html[data-fontsize="sm"]{ --fs-passage:14.5px; --fs-q:14.5px; }
+html[data-fontsize="md"]{ --fs-passage:16px; --fs-q:16px; }
+html[data-fontsize="lg"]{ --fs-passage:18.5px; --fs-q:18.5px; }
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
+  font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;-webkit-text-size-adjust:100%}
+body{display:flex;flex-direction:column;min-height:100vh;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.icon{width:18px;height:18px;display:inline-block;vertical-align:-3px;fill:currentColor}
+
+/* ------- Header ------- */
+#topbar{
+  flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:10px 14px;
+  background:var(--surface); border-bottom:1px solid var(--line); position:relative; z-index:50;
+}
+#topbar .title{font-weight:700;font-size:15.5px;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw}
+#topbar .spacer{flex:1}
+.tool{
+  display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid var(--line-2);
+  background:var(--surface-2);color:var(--text);border-radius:8px;font-size:13px;line-height:1;
+}
+.tool:hover{border-color:var(--accent)}
+.tool[disabled]{opacity:.5;cursor:not-allowed}
+.tool.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tool.primary:hover{filter:brightness(1.08)}
+.tool.danger{color:var(--bad);border-color:var(--bad)}
+.tool.warn{color:var(--warn);border-color:var(--warn)}
+#timer{font-variant-numeric:tabular-nums;font-weight:700;font-size:15px;padding:7px 12px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line-2);min-width:96px;text-align:center}
+#timer.low{color:var(--warn);border-color:var(--warn)}
+#timer.crit{color:var(--bad);border-color:var(--bad);animation:pulse 1s infinite}
+#timer.hidden{visibility:hidden}
+@keyframes pulse{50%{opacity:.55}}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:8px;overflow:hidden;background:var(--surface-2)}
+.seg button{background:transparent;border:0;padding:7px 10px;font-size:13px;border-right:1px solid var(--line-2)}
+.seg button:last-child{border-right:0}
+.seg button.active{background:var(--accent);color:#fff}
+
+/* ------- Part tabs ------- */
+#parttabs{
+  flex:0 0 auto;display:flex;background:var(--surface);border-bottom:1px solid var(--line);
+  overflow-x:auto;scrollbar-width:thin;
+}
+#parttabs button{
+  flex:1;min-width:180px;padding:11px 14px;border:0;background:transparent;color:var(--muted);
+  font-weight:600;font-size:13.5px;border-bottom:3px solid transparent;white-space:nowrap;
+}
+#parttabs button.active{color:var(--text);border-bottom-color:var(--accent);background:var(--surface-2)}
+#parttabs button:hover{color:var(--text)}
+
+/* ------- Main split ------- */
+#split{flex:1 1 auto;display:flex;min-height:0;position:relative}
+#passage-panel,#questions-panel{
+  flex:1 1 50%;min-width:0;overflow:auto;padding:18px 22px 28px;background:var(--bg);
+  scroll-behavior:smooth;
+}
+#passage-panel{border-right:1px solid var(--line)}
+#divider{
+  flex:0 0 6px;cursor:col-resize;background:var(--line);position:relative;
+}
+#divider:hover, #divider.dragging{background:var(--accent)}
+.passage-title{font-size:20px;font-weight:700;margin:4px 0 4px}
+.passage-sub{color:var(--muted);font-size:13.5px;margin-bottom:14px}
+.passage-prose{font-size:var(--fs-passage);line-height:1.65;color:var(--text)}
+.passage-prose p{margin:0 0 12px;position:relative;padding-left:0}
+.passage-prose p.with-label{padding-left:34px}
+.passage-prose p.with-label .plabel{
+  position:absolute;left:0;top:1px;font-weight:700;color:var(--accent);font-size:14.5px;
+  width:24px;text-align:center;padding:1px 0;border:1px solid var(--line-2);border-radius:6px;
+}
+.q-header{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:4px 0 8px}
+.q-range{font-size:13.5px;font-weight:700;color:var(--accent)}
+.q-instructions{font-size:var(--fs-q);color:var(--text);margin:6px 0 6px;line-height:1.55}
+.q-instructions em, .q-instructions b{font-style:normal;font-weight:700}
+.constraint{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+  background:var(--warn);color:#1a1f2a;border-radius:6px;padding:3px 7px;margin-left:6px;vertical-align:1px}
+.group{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:14px 14px 10px;margin:10px 0 18px}
+.group h4.gheading{margin:0 0 10px;font-size:15px;font-weight:700}
+.q-item{padding:9px 6px;border-top:1px dashed var(--line);font-size:var(--fs-q);line-height:1.55}
+.q-item:first-of-type{border-top:0}
+.q-item.current{background:rgba(91,141,255,.06);border-radius:8px}
+.q-num{display:inline-block;min-width:22px;font-weight:700;color:var(--accent);margin-right:6px}
+.q-text{display:inline}
+.q-stem{font-weight:600;margin-bottom:6px}
+.q-options{display:flex;flex-direction:column;gap:6px;margin:6px 0 2px;padding-left:28px}
+.q-options label{display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:4px 6px;border-radius:6px}
+.q-options label:hover{background:var(--surface-2)}
+.q-options input{margin-top:3px}
+.q-options .lab{font-weight:700;color:var(--accent);min-width:18px;display:inline-block}
+.q-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:7px 6px;border-top:1px dashed var(--line);font-size:var(--fs-q)}
+.q-row:first-of-type{border-top:0}
+.q-row .qn{font-weight:700;color:var(--accent);min-width:30px}
+.q-row .qtxt{flex:1;min-width:140px}
+.q-row select{
+  background:var(--surface-2);border:1px solid var(--line-2);border-radius:6px;padding:6px 8px;min-width:170px;
+}
+.q-row select:focus{outline:2px solid var(--accent);outline-offset:1px}
+.gap-input{
+  display:inline-block;background:var(--surface-2);border:1px solid var(--line-2);border-radius:6px;
+  padding:3px 8px;min-width:120px;color:var(--text);font:inherit;margin:0 3px;vertical-align:baseline;
+}
+.gap-input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.gap-input.warn{border-color:var(--warn)}
+.note-line{padding:6px 4px;font-size:var(--fs-q);line-height:1.55}
+.note-line.heading{font-weight:700;margin-top:6px}
+.note-line .qn{font-weight:700;color:var(--accent);margin-right:6px}
+.review-flag{display:inline-flex;gap:5px;align-items:center;font-size:12px;color:var(--muted);margin-left:8px;cursor:pointer;user-select:none}
+.review-flag input{accent-color:var(--warn)}
+.review-flag.on{color:var(--warn)}
+
+/* word list / heading list display */
+.list-box{
+  background:var(--surface-2);border:1px dashed var(--line-2);border-radius:8px;padding:10px 12px;margin:8px 0 12px;
+  font-size:var(--fs-q);line-height:1.5;
+}
+.list-box .lab{font-weight:700;color:var(--accent);min-width:20px;display:inline-block}
+.list-box ul{list-style:none;margin:0;padding:0}
+.list-box li{padding:2px 0}
+
+/* summary segments */
+.summary-block{font-size:var(--fs-q);line-height:1.75}
+.summary-block .heading{font-weight:700;margin-top:8px;display:block}
+
+/* mcq_multi stem block */
+.mcq-multi-stem{font-weight:600;margin-bottom:8px}
+.mcq-multi-ids{font-size:12px;color:var(--muted);margin-bottom:4px}
+
+/* Bottom nav / palette */
+#bottomnav{
+  flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface);
+  border-top:1px solid var(--line);position:relative;z-index:30;
+}
+#bottomnav .palette-wrap{flex:1;display:flex;align-items:center;gap:8px;overflow-x:auto}
+.palette-grp{display:flex;align-items:center;gap:5px;padding:3px 6px;border:1px solid var(--line-2);border-radius:8px;background:var(--surface-2)}
+.palette-grp .glabel{font-size:11px;color:var(--muted);margin-right:4px;font-weight:700;letter-spacing:.3px}
+.pbtn{
+  width:30px;height:28px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;
+  background:transparent;border:1px solid var(--line-2);border-radius:6px;color:var(--text);position:relative;
+}
+.pbtn:hover{border-color:var(--accent)}
+.pbtn.answered{background:var(--accent);color:#fff;border-color:var(--accent)}
+.pbtn.flagged::after{content:"";position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--warn);border:1px solid var(--surface)}
+.pbtn.current{outline:2px solid var(--accent);outline-offset:1px}
+.pbtn.correct{background:var(--good);color:#fff;border-color:var(--good)}
+.pbtn.incorrect{background:var(--bad);color:#fff;border-color:var(--bad)}
+.navbtns{display:flex;gap:6px}
+#mobileSwitch{display:none}
+@media (max-width: 900px){
+  #passage-panel,#questions-panel{flex:1 1 100%;padding:14px}
+  #divider{display:none}
+  #split.show-questions #passage-panel{display:none}
+  #split.show-passage #questions-panel{display:none}
+  #mobileSwitch{display:inline-flex}
+  #topbar .title{max-width:30vw;font-size:13.5px}
+  #topbar .hide-mobile{display:none}
+  .seg button{padding:7px 8px;font-size:12px}
+  #parttabs button{min-width:140px;padding:9px 10px;font-size:12.5px}
+  .pbtn{width:26px;height:26px;font-size:11px}
+}
+
+/* Highlight system */
+.hl{border-radius:3px;padding:0 1px;box-decoration-break:clone;-webkit-box-decoration-break:clone;cursor:pointer}
+.hl-y{background:var(--hl-y);color:#1a1f2a}
+.hl-g{background:var(--hl-g);color:#1a1f2a}
+.hl-p{background:var(--hl-p);color:#1a1f2a}
+.hl-note{outline:2px dotted var(--accent);outline-offset:1px}
+.hl-note::after{content:"📝";font-size:10px;vertical-align:super;margin-left:1px}
+#hl-toolbar{
+  position:absolute;display:none;background:var(--surface);border:1px solid var(--line-2);border-radius:10px;
+  box-shadow:var(--shadow);padding:5px;gap:3px;z-index:100;
+}
+#hl-toolbar.on{display:inline-flex}
+#hl-toolbar button{
+  width:30px;height:28px;border:1px solid var(--line-2);background:var(--surface-2);border-radius:6px;
+  color:var(--text);display:inline-flex;align-items:center;justify-content:center;font-size:13px;
+}
+#hl-toolbar button.cy{background:var(--hl-y);color:#1a1f2a}
+#hl-toolbar button.cg{background:var(--hl-g);color:#1a1f2a}
+#hl-toolbar button.cp{background:var(--hl-p);color:#1a1f2a}
+#hl-toolbar button.note{background:var(--surface-2)}
+#hl-toolbar button.clear{background:var(--bad);color:#fff;border-color:var(--bad)}
+
+/* Context menu (right click) */
+#ctxmenu{
+  position:absolute;display:none;background:var(--surface);border:1px solid var(--line-2);border-radius:10px;
+  box-shadow:var(--shadow);padding:5px 0;z-index:100;min-width:170px;
+}
+#ctxmenu.on{display:block}
+#ctxmenu button{display:block;width:100%;text-align:left;background:transparent;border:0;padding:7px 14px;font-size:13px;color:var(--text)}
+#ctxmenu button:hover{background:var(--surface-2)}
+#ctxmenu .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:-1px}
+
+/* Note popover */
+#note-pop{
+  position:absolute;display:none;background:var(--surface);border:1px solid var(--line-2);border-radius:10px;
+  box-shadow:var(--shadow);padding:10px;z-index:100;width:240px;
+}
+#note-pop.on{display:block}
+#note-pop textarea{
+  width:100%;height:78px;background:var(--surface-2);border:1px solid var(--line-2);border-radius:6px;
+  padding:6px 8px;resize:vertical;color:var(--text);
+}
+#note-pop .row{display:flex;justify-content:space-between;gap:6px;margin-top:8px}
+
+/* Modal */
+#modal{
+  position:fixed;inset:0;background:rgba(8,10,14,.6);display:none;align-items:center;justify-content:center;
+  padding:20px;z-index:200;
+}
+#modal.on{display:flex}
+.modal-card{
+  background:var(--surface);border:1px solid var(--line-2);border-radius:14px;max-width:560px;width:100%;
+  padding:22px 22px 18px;box-shadow:var(--shadow);
+}
+.modal-card h2{margin:0 0 6px;font-size:20px}
+.modal-card .score{display:flex;gap:24px;margin:14px 0 4px;align-items:center}
+.score .big{font-size:42px;font-weight:800;letter-spacing:-1px}
+.score .band{font-size:18px;color:var(--accent);font-weight:700}
+.modal-card .meta{color:var(--muted);font-size:13px}
+.modal-card .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+
+/* Review mode marks */
+.q-mark{display:inline-block;font-size:12px;font-weight:700;padding:2px 6px;border-radius:6px;margin-left:6px;vertical-align:1px}
+.q-mark.ok{background:var(--good);color:#fff}
+.q-mark.bad{background:var(--bad);color:#fff}
+.q-mark.blank{background:var(--muted);color:#fff}
+.q-correct{font-size:12.5px;color:var(--good);margin-top:4px}
+.q-yours{font-size:12.5px;color:var(--muted);margin-top:2px}
+
+/* Toast */
+#toast{
+  position:fixed;left:50%;bottom:74px;transform:translateX(-50%);background:#000;color:#fff;
+  padding:8px 14px;border-radius:8px;font-size:13px;display:none;z-index:300;border:1px solid var(--line-2);
+}
+#toast.on{display:block}
+
+/* Confirm dialog reuses modal styling */
+.confirm .actions{justify-content:space-between}
+
+/* Helpers */
+.hide{display:none!important}
+.kbd{font-size:11px;background:var(--surface-2);border:1px solid var(--line-2);padding:1px 5px;border-radius:4px;color:var(--muted)}
+.sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+
+<header id="topbar">
+  <div class="title" id="testTitle">CDI Reading 1</div>
+  <div id="timer" title="Time remaining">60:00</div>
+  <button class="tool" id="timerToggle" title="Hide/show timer">Hide</button>
+  <div class="spacer"></div>
+  <div class="seg hide-mobile" role="group" aria-label="Text size">
+    <button data-size="sm" title="Smaller">A−</button>
+    <button data-size="md" class="active" title="Default">A</button>
+    <button data-size="lg" title="Larger">A+</button>
+  </div>
+  <div class="seg hide-mobile" role="group" aria-label="Theme">
+    <button data-theme="light">Light</button>
+    <button data-theme="dark" class="active">Dark</button>
+    <button data-theme="hc">HC</button>
+  </div>
+  <button class="tool" id="clearAll" title="Clear all highlights and notes">Eraser</button>
+  <button class="tool danger" id="resetBtn">Reset</button>
+  <button class="tool primary" id="submitBtn">Submit All</button>
+</header>
+
+<nav id="parttabs" role="tablist"></nav>
+
+<main id="split">
+  <section id="passage-panel" class="hl-zone" data-zone="passage" tabindex="0"></section>
+  <div id="divider" role="separator" aria-orientation="vertical" title="Drag to resize"></div>
+  <section id="questions-panel" class="hl-zone" data-zone="questions" tabindex="0"></section>
+</main>
+
+<footer id="bottomnav">
+  <button class="tool" id="mobileSwitch">Show Questions</button>
+  <div class="palette-wrap" id="palette" aria-label="Question palette"></div>
+  <div class="navbtns">
+    <button class="tool" id="prevBtn" title="Previous question">‹ Prev</button>
+    <button class="tool" id="nextBtn" title="Next question">Next ›</button>
+  </div>
+</footer>
+
+<div id="hl-toolbar" role="toolbar" aria-label="Highlight tools">
+  <button class="cy" data-act="hl" data-color="y" title="Highlight yellow">H</button>
+  <button class="cg" data-act="hl" data-color="g" title="Highlight green">H</button>
+  <button class="cp" data-act="hl" data-color="p" title="Highlight pink">H</button>
+  <button class="note" data-act="note" title="Add note">📝</button>
+  <button class="clear" data-act="clear" title="Clear highlight">×</button>
+</div>
+
+<div id="ctxmenu" role="menu" aria-label="Context menu"></div>
+
+<div id="note-pop">
+  <textarea id="noteText" placeholder="Type a note for this selection…"></textarea>
+  <div class="row">
+    <button class="tool danger" id="noteDel">Delete note</button>
+    <div>
+      <button class="tool" id="noteCancel">Cancel</button>
+      <button class="tool primary" id="noteSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal" role="dialog" aria-modal="true"></div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   TEST DATA — CDI Reading 1 (verbatim from test-1.js)
+   ============================================================ */
+const TEST_DATA = {
+  id: "cdi-reading-1",
+  title: "CDI Reading 1",
+  durationMinutes: 60,
+
+  passages: [
+    {
+      number: 1,
+      title: "The history of the pencil",
+      subtitle: "You should spend about 20 minutes on Questions 1–13.",
+      questionRange: "1–13",
+      paragraphs: [
+        { label: null, html: `The history of the pencil starts with a violent thunderstorm. When some particularly ferocious weather struck the Lake District in North West England in the sixteenth century, locals in the village of Borrowdale discovered a large uprooted tree. Underneath the tree lay an unknown black substance which, as we now know, was slightly shiny and smooth to the touch. And it left a black smear on the hands of all who touched it.` },
+        { label: null, html: `Initially, the local farmers used the newly discovered material as a handy way to identify their sheep. However, others quickly realised the potential for using this intriguing substance to write on paper. When it was untreated, the material was very soft, which meant that it was messy to handle. To make it fit for use with paper, people enclosed a thin core of the substance in stiff sheep hides or rope. At this time chemistry was still in its infancy. People searched for a word to describe this increasingly useful substance and came up with "plumbago," which, in Latin, means "acts or writes like lead". Later the name was changed to graphite. But because words have remarkable staying power, we still call graphite the "lead" of a pencil even though it is now known that there is no trace of real lead in graphite.` },
+        { label: null, html: `Graphite has a very high melting point, at around 3,500 degrees Celsius. This made it invaluable to the British army and navy as a secret ingredient in the manufacture of cannon balls. The Royal Ordnance, or weaponry section of the British armed forces, used graphite as a lining inside the moulds for cannon balls, as a result of which the British could turn them out faster and more cheaply than their European rivals. In addition to its value to the armed forces, the government quickly realised the commercial potential of the graphite at Borrowdale and assumed control of all the mines there during the sixteenth century. Armed guards accompanied the precious graphite all the way down to the metal foundries by the naval shipyards in the south of England. The graphite was so valuable that the locals, who called it wadd, started to steal it. As a deterrent, an act of parliament in 1752 made this offence punishable by time in prison.` },
+        { label: null, html: `The Italians originally invented the wooden casing to hold a thin rod of plumbago firmly in place for ease of writing. Italian craftsmen hollowed out two small sections of cedar wood, into one of which they laid the lead. They then glued the other section over the top and left the two halves to set. When dry, the whole apparatus formed what today we know as a pencil. The Germans took this technique and developed it further by applying mass-production techniques to pencils. At the same time Nicolas-Jacques Conte, a French officer in Napoleon Bonaparte's army during the late 1700s, developed a method of mixing powdered graphite and clay together for firing in a kiln. Adding more clay to the mixture helped make the pencil harder, sharper, and more precise in its mark. More graphite helped make a pencil mark that was softer, thicker and darker.` },
+        { label: null, html: `The varying quality of pencil leads eventually gave rise to a system for categorizing the fineness of the pencil mark. Pencil manufacturers all over the world still use this so-called HB grading system today. The H stands for the hardness of the pencil while the B stands for its blackness. An HB pencil is a standard pencil and a variety of letters and numbers are used to designate different types of lead.` },
+        { label: null, html: `Significant seams of graphite exist in parts of China, which now produces most of the world's pencils. Interestingly, the Borrowdale mine in the Lake District remains the only significant source of graphite in its near-pure form in the world. Nowadays the highest grade of graphite at Borrowdale is totally exhausted, although other grades can still be found, and England's pencil industry continues to thrive in the nearby town of Keswick.` },
+        { label: null, html: `The pencil has turned out to be a remarkably resilient and valuable tool whose use has survived well into our high-tech times, as a well-known story shows. It is sometimes said that the American space programme spent millions of dollars to invent a pen capable of writing in the zero gravity of space. The Russians, by contrast, simply equipped their astronauts with good old-fashioned pencils that never let them down. It should be pointed out though, that the popular myth about Americans overlooking the practical advantages of pencils in zero gravity is merely fiction. In actual fact, both American and Russian astronauts were equipped with pencils in their respective country's first space flights. A private company later developed pens for writing in zero gravity. In fact, astronauts of every nation now use pens. But no matter – pencils remain in use in every classroom, every planning, building and drawing office, and in every art studio in the world. And there is nothing to suggest that we are likely to invent anything better than graphite to use in our pencils.` }
+      ]
+    },
+    {
+      number: 2,
+      title: "What is an unfair advantage in sport?",
+      subtitle: "Olympic athletes increasingly depend on technology to help them win – but is that fair?",
+      questionRange: "14–26",
+      paragraphs: [
+        { label: "A", html: `What happened to the Australian athlete Ron Clarke in the 10,000 metres at the Mexico City Olympics of 1968 is now virtually forgotten, though at the time it was headline news. Clarke was the greatest distance runner in history: he'd broken more world records than anybody else. But in front of 55,000 horrified spectators, the event went disastrously wrong. In the third lap, one runner keeled over and with six laps to go, two more were carried away. Yet the race was being conducted at a relatively leisurely speed: the halfway time was the slowest since the Paris Olympics of 1924. With two laps to go, Clarke was in the leading pack. "I'd never felt better in a race," he says. But suddenly he too began to struggle, and as the frontrunners moved up a gear, a gap opened up. Clarke remembers nothing of his last lap which he ran in 90 seconds. "Normally I would run it in 64," he explains. He stumbled across the line in sixth place and collapsed. He was administered oxygen and stretchered off the track.` },
+        { label: "B", html: `Mexico City is surrounded by mountains and is over 2,240 metres above sea level. That the altitude would have an impact on the Games was predicted – Clarke had raised the issue himself, but had been told by the Australian sports authorities that complaining was regarded as bad sportsmanship. As it turned out, he had good reason to do so. Clearly, the link between athletic performance and altitude needed further investigation.` },
+        { label: "C", html: `Although there were few standout performances in distance running at the Mexico Games, they marked a turning point: the start of an astonishing record of success by East Africans. While Clarke lay crumpled in a heap, runners from Kenya and Ethiopia were celebrating their gold and silver medals. The record books confirm how entrenched this pattern has become. The names of the seven fastest men in history over 5,000 metres are Bekele, Gebrselassie, Komen, Kipchoge, Sihine, Songkok and Chereno. They are all from either Kenya or Ethiopia. Between 1997 and 2011, the 10,000 metres men's world record was smashed five times, dropping from 26:31.32 to 26:17.53. Each time, the record was broken by a Kenyan or an Ethiopian. While there is a complex mix of economic, political, social and cultural explanations for the pre-eminence of East Africans, one factor is surely that many of these athletes have lived most of their lives in thin air.` },
+        { label: "D", html: `At high altitudes, a number of physiological alterations occur. Most importantly, more red blood cells and haemoglobin are produced. This, in turn, increases the capacity of the blood to carry oxygen, which feeds the muscles and which gives an advantage to the athletes when they return to sea level. However, it is impossible to train with the same level of intensity in the mountains – aerobic capacity and cardio-respiratory function both suffer at altitude. As a result, the consensus is that the optimum approach to athletic preparation is: Live High, Train Low (LHTL). Yet that has obvious practical drawbacks. Not many people live in the mountains and those who do would prefer not to spend several hours each day driving up and down winding treacherous roads.` },
+        { label: "E", html: `That's where the altitude tent – sometimes called the hypoxic tent – comes in. Around two decades ago, two different scientists had the same exciting thought. If they could artificially control the atmosphere within a confined space, they could simulate the effects of high altitude and save an athlete at sea level from the time and expense of travelling to higher ground. Altitude tents have improved over the years: they're not as hot or as noisy as the early prototypes and are much cheaper too. They are also perfectly lawful. Five years ago when the tents were investigated by WADA (the World Anti-Doping Agency), it was ruled that they did not violate the spirit of distance running. It is now routine for athletes to sleep in them in preparation for an event.` },
+        { label: "F", html: `However, it is not the case that all new technologies gain approval. In 2008, a staggering 105 world records were broken in swimming, the vast majority achieved by competitors wearing the new Speedo LZR Racer suit. These suits use a high-tech fabric tested in NASA's wind tunnels, which reduces drag and improves buoyancy. The LZR was initially sanctioned by FINA, the international swimming body. But as better suits were produced by Speedo and other manufacturers, and more records were broken, they became increasingly controversial. In a 2009 ruling, FINA changed its mind, banning all suits made with this high-tech fabric.` },
+        { label: "G", html: `Going faster, higher, and stronger is integral to the logic of athletics in general, and the Olympics in particular. Athletes believe they need records all the time. And the only way they can achieve records is by improving the clothing, the kit, the training, the nutrition, all to identify minute changes of 0.0001 of a second. But when a new technology is invented, the relevant sports authority has to consider whether to embrace or reject it. In some cases, athletes are granted permission to use the technology; in others, it is banned. But whatever the outcome, rulings should not appear arbitrary: arguments have to be examined and weighed and the rules of logic ought to apply in every case.` }
+      ]
+    },
+    {
+      number: 3,
+      title: "Theories of planet formation questioned",
+      subtitle: "You should spend about 20 minutes on Questions 27–40.",
+      questionRange: "27–40",
+      paragraphs: [
+        { label: "A", html: `The traditional view of astronomy has been that planets form slowly as material congeals within the disk of gas, dust, and ice known to surround young stars. First, gravity gathers together bits of dust that merge to form boulder-sized bodies, which themselves coalesce into bigger and bigger objects. In about a million years, these form rocky planets like Earth and Mars. Over the next few million years, gas from the disk settles around some of these solid bodies and they grow far larger, becoming giants like gaseous Saturn and Jupiter. This theory of planet formation is known as the core-accretion model. However, several astronomers now say that this model for making planets may not be entirely correct.` },
+        { label: "B", html: `These astronomers have devised an alternative theory in which planets as massive as Jupiter, whether orbiting our sun or a distant star, would form completely within a few hundred years, rather than the millions as previously believed. Both models for planet formation start with the same reservoir of planet-making materials. The spinning cloud of gas, dust and ice rapidly flattens into a disk. Over time, gravity causes material in this so-called protoplanetary disk to clump into planet-size objects. However, it is the speed of the clustering, and the size of the initial clumps, that provide the disparity in the two models.` },
+        { label: "C", html: `According to the core-accretion model, making Jupiter required the initial formation of a solid core five to ten times Earth's mass. It would have taken about a million years to achieve this. This large core then had enough gravity to attract a huge amount of gas from the proto-planetary disk to create a planet of the massive proportions of Jupiter. In this core-accretion model, these gas giants may take as long as ten million years to form.` },
+        { label: "D", html: `That is several million years too long in the opinion of Lucio Mayer of Zurich University. Direct telescope observations suggest that the proto-planetary disks do not last more than about seven million years, and studies of the environment in which stars form suggest that many disks may evaporate in much less time. The typical star in the Milky Way is born into a tough neighborhood, Mayer says. Most stars form in dense clouds of gas, dust and ice. They are extremely hot, and the ultraviolet light they send into space can evaporate a protoplanetary disk in less than 100,000 years. In the core-accretion model, that is not enough time for a Jupiter-like planet to form.` },
+        { label: "E", html: `Recent computer simulations show that when individual stars form, the gravitational pull between them can result in the outer gaseous parts of the proto-planetary disks being destroyed in 100,000 years or less. "If a gas giant planet can't form quickly, it probably can't form at all," concludes Thomas Quinn of the University of Washington in Seattle. He also asserts that if the core-accretion model is correct, gas giant planets like Jupiter should be rare. However, since 1995, astronomers have found more than one hundred planets as large as Jupiter outside our solar system.` },
+        { label: "F", html: `Quinn and his colleagues recently analysed the standard core-accretion model of planet formation and investigated whether or not giant planets could form quickly. They looked at the work of Gerard Kuiper who, in the 1950s, proposed that they could. Alan P. Boss of the Carnegie Institute did more extensive work on the subject in the late 1980s. Using computer simulations, Boss was surprised to find that gravity could cause a proto-planetary disk to break into clumps as big as a modest-size planet after just a few orbits of its parent star. The clumps would be so massive that they would continue to pull in gas, ice and dust. This is called the gravitational-instability model of planet formation.` },
+        { label: "G", html: `Recent calculations by other scientists have suggested that many of the solid bodies that might serve as the rocky core for Jupiter-size planets in the traditional theory would spiral into the parent star before the massive planet could form. Further analysis has shown that other effects could also cause a proto-planetary disk to become unstable and split into large fragments. For instance, within the disk, electrically charged material might accumulate, leading to fragmentation of the disk. Or a powerful gravitational disturbance, such the pull of a star passing nearby, could produce instability in the proto-planetary disk.` },
+        { label: "H", html: `Nevertheless, the gravitational-instability model has problems of its own, as it is mathematically complicated and requires sophisticated computer use. Therefore, no one has studied the simulations long enough to establish conclusively that the model allows for the formation of massive planets.` },
+        { label: "I", html: `In response, Mayer says that he and his team have described the results of an extensive simulation based on the gravitational-instability model. They spent two years refining calculations to track what would happen to a proto-planetary disk over one thousand years, which is more than any other simulation had done. Mayer and his colleagues had previously devoted a decade to state-of-the-art simulations of the formation and evolution of galaxies. For that reason, "we had already developed a fast code that can run in parallel on machines with hundreds of processors," says Mayer. "It was almost natural to think of applying our tools and experience in numerical simulations to such a fundamental problem like planet formation." This knowledge assisted them in investigating their gravitational-instability theory.` }
+      ]
+    }
+  ],
+
+  groups: [
+    {
+      type: "note_completion",
+      range: "1–6",
+      passage: 1,
+      instructions: "Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
+      constraint: "ONE WORD ONLY",
+      heading: "The early history of graphite in Britain",
+      lines: [
+        { id: 1, before: "Graphite was first found below a", after: "blown down in a storm.", answer: ["tree"] },
+        { id: 2, before: "The first use of graphite was to make marks on", after: "", answer: ["sheep"] },
+        "The characteristics of raw graphite:",
+        { id: 3, before: "– dirty to use because it is so", after: "", answer: ["soft"] },
+        { id: 4, before: "– originally wrapped in", after: "or animal skin to make it useable as a pencil.", answer: ["rope"] },
+        "Graphite came to the notice of the government for military and commercial purposes:",
+        { id: 5, before: "– the government completely took over the", after: "at Borrowdale.", answer: ["mines"] },
+        "– they employed guards to protect the graphite on its journey south.",
+        { id: 6, before: "Local people began to", after: "graphite for the money involved.", answer: ["steal"] },
+        "– the government passed a law to protect the graphite industry."
+      ]
+    },
+    {
+      type: "tfng",
+      range: "7–13",
+      passage: 1,
+      instructions: "Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if it contradicts the information, or NOT GIVEN if there is no information on this.",
+      options: ["TRUE", "FALSE", "NOT GIVEN"],
+      items: [
+        { id: 7, text: "The Italians were the first to make pencils out of wood.", answer: "TRUE" },
+        { id: 8, text: "The Germans used different types of wood to produce pencils.", answer: "NOT GIVEN" },
+        { id: 9, text: "More clay in a pencil makes it write more darkly.", answer: "FALSE" },
+        { id: 10, text: "After the HB code was introduced, it very quickly became used by all manufacturers.", answer: "NOT GIVEN" },
+        { id: 11, text: "English pencil factories have now all closed down.", answer: "FALSE" },
+        { id: 12, text: "American astronauts used pencils on their early journeys into space.", answer: "TRUE" },
+        { id: 13, text: "The use of graphite pencils is unlikely to continue into the future.", answer: "FALSE" }
+      ]
+    },
+    {
+      type: "matching_headings",
+      range: "14–20",
+      passage: 2,
+      instructions: "Reading Passage 2 has seven paragraphs, A–G. Choose the correct heading for each paragraph from the list of headings below.",
+      headingList: [
+        { label: "i", text: "Early research into athletes' physiology" },
+        { label: "ii", text: "A convenient method of acclimatization" },
+        { label: "iii", text: "The need for a rational approach" },
+        { label: "iv", text: "Changes in the body" },
+        { label: "v", text: "The athletes who break the rules" },
+        { label: "vi", text: "Well-founded concerns" },
+        { label: "vii", text: "The surprising outcome of a race" },
+        { label: "viii", text: "The reversal of a decision" },
+        { label: "ix", text: "The runners who dominate" }
+      ],
+      items: [
+        { id: 14, text: "Paragraph A", answer: "vii" },
+        { id: 15, text: "Paragraph B", answer: "vi" },
+        { id: 16, text: "Paragraph C", answer: "ix" },
+        { id: 17, text: "Paragraph D", answer: "iv" },
+        { id: 18, text: "Paragraph E", answer: "ii" },
+        { id: 19, text: "Paragraph F", answer: "viii" },
+        { id: 20, text: "Paragraph G", answer: "iii" }
+      ]
+    },
+    {
+      type: "mcq_multi",
+      range: "21–22",
+      passage: 2,
+      ids: [21, 22],
+      selectCount: 2,
+      instructions: "Choose TWO letters, A–E.",
+      stem: "Which TWO of the following statements about Ron Clarke are made in the passage?",
+      options: [
+        { label: "A", text: "Clarke was not performing well immediately prior to the Mexico Games." },
+        { label: "B", text: "The worries Clarke had before the Mexico Games were not taken into account." },
+        { label: "C", text: "Clarke's experiences at the Mexico Games are widely talked about today." },
+        { label: "D", text: "At one stage of the Mexico Games 10,000 metres, Clarke was near the front." },
+        { label: "E", text: "Clarke was the only runner at the Mexico Games who appeared to be affected by the altitude." }
+      ],
+      answer: ["B", "D"]
+    },
+    {
+      type: "summary_completion",
+      range: "23–26",
+      passage: 2,
+      instructions: "Complete the summary below. Choose ONE WORD from the passage for each answer.",
+      constraint: "ONE WORD",
+      heading: "Do all new technologies gain approval?",
+      segments: [
+        { text: "Some people may be puzzled by attitudes towards performance-enhancing technologies in sports. For example, why is the altitude tent considered acceptable, but not the LZR Racer suit? For distance running, WADA concluded that the altitude tent was not contrary to the " },
+        { gap: 23, answer: ["spirit"] },
+        { text: " of the sport. However, the LZR swimsuit, which is made from a special fabric that aids buoyancy and cuts down " },
+        { gap: 24, answer: ["drag"] },
+        { text: " was banned. Athletes think they have to continually set fresh " },
+        { gap: 25, answer: ["records"] },
+        { text: ". This is made possible by better " },
+        { gap: 26, answer: ["nutrition"] },
+        { text: " and training, as well as improved clothing and equipment. However, when sports authorities have to decide whether to give permission for a new performance-enhancing technology to be used, it is important that their decisions are not seen as arbitrary." }
+      ]
+    },
+    {
+      type: "matching_features",
+      subtype: "paragraph",
+      range: "27–32",
+      passage: 3,
+      instructions: "Reading Passage 3 has nine paragraphs, A–I. Which paragraph contains the following information?",
+      mayReuse: false,
+      featureList: [
+        { label: "A", text: "A" }, { label: "B", text: "B" }, { label: "C", text: "C" },
+        { label: "D", text: "D" }, { label: "E", text: "E" }, { label: "F", text: "F" },
+        { label: "G", text: "G" }, { label: "H", text: "H" }, { label: "I", text: "I" }
+      ],
+      items: [
+        { id: 27, text: "the significance of recent discoveries of a large number of massive planets", answer: "E" },
+        { id: 28, text: "an explanation of the difference between the theories of planet creation", answer: "B" },
+        { id: 29, text: "the difficulties of proving that the more recent theory of planet creation is correct", answer: "H" },
+        { id: 30, text: "reasons why Mayer claims he was able to develop his theory", answer: "I" },
+        { id: 31, text: "a detailed explanation of the long-held theory of planet creation", answer: "A" },
+        { id: 32, text: "description of the destructive effect of heat in space", answer: "D" }
+      ]
+    },
+    {
+      type: "sentence_endings",
+      range: "33–37",
+      passage: 3,
+      instructions: "Complete each sentence with the correct ending, A–G, below.",
+      endingList: [
+        { label: "A", text: "gaseous planets form before smaller rocky planets." },
+        { label: "B", text: "large planets take millions of years to form." },
+        { label: "C", text: "large planets must form fast or not at all." },
+        { label: "D", text: "large planets had the potential to develop relatively fast." },
+        { label: "E", text: "gravity could cause planet-sized pieces to break off quickly." },
+        { label: "F", text: "hot clumps of gas, dust and ice were destroyed relatively quickly." },
+        { label: "G", text: "computer studies of planets are too mathematically complex." }
+      ],
+      items: [
+        { id: 33, stem: "Traditionally astronomers have believed that", answer: "B" },
+        { id: 34, stem: "Lucio Mayer physically observed that", answer: "F" },
+        { id: 35, stem: "Thomas Quinn believes that", answer: "C" },
+        { id: 36, stem: "Gerard Kuiper was the first to suggest that", answer: "D" },
+        { id: 37, stem: "Alan P. Boss discovered that", answer: "E" }
+      ]
+    },
+    {
+      type: "summary_wordlist",
+      range: "38–40",
+      passage: 3,
+      instructions: "Complete the summary using the list of words, A–F, below.",
+      wordList: [
+        { label: "A", text: "gravitational pull" },
+        { label: "B", text: "ice" },
+        { label: "C", text: "solid core" },
+        { label: "D", text: "ultraviolet light" },
+        { label: "E", text: "Milky Way" },
+        { label: "F", text: "disk" }
+      ],
+      segments: [
+        { heading: "The core-accretion model" },
+        { text: "A hard centre becomes larger and this produces enough gravity to draw gas from the " },
+        { gap: 38, answer: "F" },
+        { text: " around it." },
+        { heading: "The gravitational-instability model" },
+        { text: "Stars can break up the outer gaseous parts which surround objects in the sky because the attraction of the " },
+        { gap: 39, answer: "A" },
+        { text: " from stars is very powerful. Heat caused by " },
+        { gap: 40, answer: "D" },
+        { text: " can also destroy the material surrounding the objects in a relatively short time. Planet-sized segments may split away from the main body following several orbits of the parent star." }
+      ]
+    }
+  ]
+};
+
+/* ============================================================
+   ENGINE
+   ============================================================ */
+(function(){
+'use strict';
+
+const LSKEY = "cdi-state::" + TEST_DATA.id;
+const HLKEY = "cdi-highlights::" + TEST_DATA.id;
+const UIKEY = "cdi-ui::" + TEST_DATA.id;
+
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+
+/* --- state --- */
+const state = loadState();
+const ui = loadUI();
+
+function loadState(){
+  try{
+    const s = JSON.parse(localStorage.getItem(LSKEY) || "{}");
+    return Object.assign({
+      answers: {},     // qid -> string (or array for mcq_multi via group key)
+      mcqMulti: {},    // groupRange -> [letters]
+      reviewFlags: {}, // qid -> true
+      remaining: TEST_DATA.durationMinutes * 60,
+      submitted: false,
+      currentPart: 0,
+      currentQid: 1
+    }, s);
+  }catch(e){ return defaultState(); }
+}
+function defaultState(){
+  return {answers:{}, mcqMulti:{}, reviewFlags:{}, remaining:TEST_DATA.durationMinutes*60, submitted:false, currentPart:0, currentQid:1};
+}
+function saveState(){ try{ localStorage.setItem(LSKEY, JSON.stringify(state)); }catch(e){} }
+
+function loadUI(){
+  try{
+    return Object.assign({theme:"dark",size:"md",timerHidden:false,dividerPct:50}, JSON.parse(localStorage.getItem(UIKEY)||"{}"));
+  }catch(e){ return {theme:"dark",size:"md",timerHidden:false,dividerPct:50}; }
+}
+function saveUI(){ try{ localStorage.setItem(UIKEY, JSON.stringify(ui)); }catch(e){} }
+
+/* --- question index utilities --- */
+function allItems(){
+  const out = [];
+  for(const g of TEST_DATA.groups){
+    if(g.type === "mcq_multi"){
+      out.push({id: g.ids[0], group:g, kind:"mcq_multi_anchor"});
+      // ids[1..] are filled together but we still want them in palette
+      for(let i=1;i<g.ids.length;i++) out.push({id:g.ids[i], group:g, kind:"mcq_multi_slot"});
+    } else if(g.type === "note_completion" || g.type === "table_completion" || g.type === "flowchart_completion"){
+      for(const ln of g.lines){
+        if(typeof ln === "object" && ln.id) out.push({id:ln.id, group:g, kind:"gap"});
+      }
+    } else if(g.type === "summary_completion" || g.type === "summary_wordlist"){
+      for(const s of g.segments){ if(s && s.gap) out.push({id:s.gap, group:g, kind:"gap"}); }
+    } else if(g.items){
+      for(const it of g.items) out.push({id:it.id, group:g, kind:g.type, item:it});
+    }
+  }
+  return out.sort((a,b)=>a.id-b.id);
+}
+const ITEMS = allItems();
+function itemForId(id){ return ITEMS.find(x=>x.id===id); }
+function partForQid(qid){
+  const g = itemForId(qid)?.group;
+  if(!g) return 0;
+  return (g.passage||1) - 1;
+}
+
+/* ============================================================
+   RENDER — header / part tabs
+   ============================================================ */
+function applyUI(){
+  document.documentElement.setAttribute("data-theme", ui.theme);
+  document.documentElement.setAttribute("data-fontsize", ui.size);
+  $$("#topbar [data-theme]").forEach(b=> b.classList.toggle("active", b.dataset.theme===ui.theme));
+  $$("#topbar [data-size]").forEach(b=> b.classList.toggle("active", b.dataset.size===ui.size));
+  $("#timer").classList.toggle("hidden", !!ui.timerHidden);
+  $("#timerToggle").textContent = ui.timerHidden ? "Show" : "Hide";
+  applyDivider();
+}
+function applyDivider(){
+  if(window.innerWidth < 900){
+    $("#passage-panel").style.flex = "";
+    $("#questions-panel").style.flex = "";
+    return;
+  }
+  const p = Math.max(20, Math.min(80, ui.dividerPct||50));
+  $("#passage-panel").style.flex = `0 0 calc(${p}% - 3px)`;
+  $("#questions-panel").style.flex = `0 0 calc(${100-p}% - 3px)`;
+}
+
+function renderTabs(){
+  const wrap = $("#parttabs"); wrap.innerHTML = "";
+  TEST_DATA.passages.forEach((p,i)=>{
+    const b = document.createElement("button");
+    b.role = "tab";
+    b.className = (i===state.currentPart ? "active":"");
+    b.textContent = `Passage ${p.number} · Q${p.questionRange}`;
+    b.addEventListener("click", ()=> setPart(i));
+    wrap.appendChild(b);
+  });
+}
+
+function setPart(i){
+  state.currentPart = i; saveState();
+  $$("#parttabs button").forEach((b,k)=> b.classList.toggle("active", k===i));
+  renderPassage(); renderQuestions();
+  restoreHighlightsInZones();
+  if(window.innerWidth < 900){
+    $("#split").classList.remove("show-passage","show-questions");
+    $("#split").classList.add("show-passage");
+    $("#mobileSwitch").textContent = "Show Questions";
+  }
+}
+
+/* ============================================================
+   RENDER — passage
+   ============================================================ */
+function renderPassage(){
+  const p = TEST_DATA.passages[state.currentPart];
+  const out = $("#passage-panel");
+  out.innerHTML = "";
+  const h = document.createElement("div");
+  h.className = "passage-title";
+  h.textContent = `Reading Passage ${p.number} — ${p.title}`;
+  out.appendChild(h);
+  if(p.subtitle){
+    const s = document.createElement("div"); s.className = "passage-sub"; s.textContent = p.subtitle;
+    out.appendChild(s);
+  }
+  const prose = document.createElement("div");
+  prose.className = "passage-prose";
+  p.paragraphs.forEach((para,idx)=>{
+    const el = document.createElement("p");
+    el.dataset.hlId = `p${p.number}-pp${idx}`;
+    if(para.label){
+      el.classList.add("with-label");
+      const lab = document.createElement("span"); lab.className = "plabel"; lab.textContent = para.label;
+      el.appendChild(lab);
+    }
+    const txt = document.createElement("span");
+    txt.innerHTML = para.html;
+    el.appendChild(txt);
+    prose.appendChild(el);
+  });
+  out.appendChild(prose);
+  out.scrollTop = 0;
+}
+
+/* ============================================================
+   RENDER — questions
+   ============================================================ */
+function renderQuestions(){
+  const out = $("#questions-panel"); out.innerHTML = "";
+  const groups = TEST_DATA.groups.filter(g => (g.passage||1)-1 === state.currentPart);
+  groups.forEach(g => out.appendChild(renderGroup(g)));
+  updateCurrentHighlight();
+}
+
+function renderGroup(g){
+  const wrap = document.createElement("section");
+  wrap.className = "group";
+  wrap.dataset.range = g.range;
+
+  const head = document.createElement("div");
+  head.className = "q-header";
+  const range = document.createElement("div"); range.className = "q-range"; range.textContent = `Questions ${g.range}`;
+  head.appendChild(range);
+  wrap.appendChild(head);
+
+  const ins = document.createElement("div");
+  ins.className = "q-instructions";
+  ins.innerHTML = escapeHtml(g.instructions||"");
+  if(g.constraint){
+    const c = document.createElement("span"); c.className="constraint"; c.textContent = g.constraint;
+    ins.appendChild(c);
+  }
+  wrap.appendChild(ins);
+
+  switch(g.type){
+    case "note_completion":
+    case "table_completion":
+    case "flowchart_completion":
+      renderNoteLike(g, wrap); break;
+    case "tfng":
+    case "ynng":
+      renderTfngYnng(g, wrap); break;
+    case "mcq_single":
+      renderMcqSingle(g, wrap); break;
+    case "mcq_multi":
+      renderMcqMulti(g, wrap); break;
+    case "matching_headings":
+      renderMatching(g, wrap, g.headingList, true); break;
+    case "matching_features":
+      renderMatching(g, wrap, g.featureList, false); break;
+    case "sentence_endings":
+      renderSentenceEndings(g, wrap); break;
+    case "summary_completion":
+      renderSummary(g, wrap, false); break;
+    case "summary_wordlist":
+      renderSummary(g, wrap, true); break;
+  }
+  return wrap;
+}
+
+function renderNoteLike(g, wrap){
+  if(g.heading){
+    const h = document.createElement("h4"); h.className = "gheading"; h.textContent = g.heading;
+    wrap.appendChild(h);
+  }
+  g.lines.forEach(ln => {
+    if(typeof ln === "string"){
+      const d = document.createElement("div"); d.className = "note-line heading"; d.textContent = ln;
+      wrap.appendChild(d);
+    } else {
+      const d = document.createElement("div"); d.className = "note-line"; d.dataset.qid = ln.id;
+      const qn = document.createElement("span"); qn.className = "qn"; qn.textContent = ln.id;
+      d.appendChild(qn);
+      const before = document.createElement("span"); before.innerHTML = " "+escapeHtml(ln.before||"")+" ";
+      const inp = makeGapInput(ln.id, g.constraint, ln.answer);
+      const after = document.createElement("span"); after.innerHTML = " "+escapeHtml(ln.after||"");
+      d.appendChild(before); d.appendChild(inp); d.appendChild(after);
+      d.appendChild(makeReviewFlag(ln.id));
+      d.appendChild(makeMark(ln.id, ln.answer, "gap"));
+      wrap.appendChild(d);
+    }
+  });
+}
+
+function renderTfngYnng(g, wrap){
+  g.items.forEach(it => {
+    const row = document.createElement("div"); row.className = "q-row"; row.dataset.qid = it.id;
+    const qn = document.createElement("span"); qn.className = "qn"; qn.textContent = it.id;
+    const tx = document.createElement("span"); tx.className = "qtxt"; tx.innerHTML = escapeHtml(it.text);
+    row.appendChild(qn); row.appendChild(tx);
+    const opts = document.createElement("div"); opts.className = "q-options";
+    g.options.forEach(opt => {
+      const lab = document.createElement("label");
+      const r = document.createElement("input"); r.type="radio"; r.name = "q"+it.id; r.value = opt;
+      if(state.answers[it.id] === opt) r.checked = true;
+      r.addEventListener("change", ()=> setAnswer(it.id, opt));
+      lab.appendChild(r);
+      const s = document.createElement("span"); s.textContent = " "+opt; lab.appendChild(s);
+      opts.appendChild(lab);
+    });
+    row.appendChild(opts);
+    row.appendChild(makeReviewFlag(it.id));
+    row.appendChild(makeMark(it.id, it.answer, "single"));
+    wrap.appendChild(row);
+  });
+}
+
+function renderMcqSingle(g, wrap){
+  g.items.forEach(it => {
+    const row = document.createElement("div"); row.className = "q-item"; row.dataset.qid = it.id;
+    const stem = document.createElement("div"); stem.className = "q-stem";
+    stem.innerHTML = `<span class="q-num">${it.id}</span>${escapeHtml(it.stem)}`;
+    row.appendChild(stem);
+    const opts = document.createElement("div"); opts.className = "q-options";
+    it.options.forEach(opt => {
+      const lab = document.createElement("label");
+      const r = document.createElement("input"); r.type="radio"; r.name="q"+it.id; r.value=opt.label;
+      if(state.answers[it.id] === opt.label) r.checked = true;
+      r.addEventListener("change", ()=> setAnswer(it.id, opt.label));
+      lab.appendChild(r);
+      const lb = document.createElement("span"); lb.className="lab"; lb.textContent=opt.label; lab.appendChild(lb);
+      const sp = document.createElement("span"); sp.innerHTML = escapeHtml(opt.text); lab.appendChild(sp);
+      opts.appendChild(lab);
+    });
+    row.appendChild(opts);
+    row.appendChild(makeReviewFlag(it.id));
+    row.appendChild(makeMark(it.id, it.answer, "single"));
+    wrap.appendChild(row);
+  });
+}
+
+function renderMcqMulti(g, wrap){
+  const row = document.createElement("div"); row.className = "q-item";
+  row.dataset.qid = g.ids[0];
+  const idsLine = document.createElement("div"); idsLine.className = "mcq-multi-ids"; idsLine.textContent = `Questions ${g.ids.join(" & ")}`;
+  row.appendChild(idsLine);
+  const stem = document.createElement("div"); stem.className = "mcq-multi-stem";
+  stem.innerHTML = escapeHtml(g.stem);
+  row.appendChild(stem);
+  const opts = document.createElement("div"); opts.className = "q-options";
+  const key = "mcq_" + g.range;
+  const selected = state.mcqMulti[key] ? [...state.mcqMulti[key]] : [];
+  g.options.forEach(opt => {
+    const lab = document.createElement("label");
+    const c = document.createElement("input"); c.type="checkbox"; c.value=opt.label;
+    c.checked = selected.includes(opt.label);
+    c.addEventListener("change", e => {
+      const cur = state.mcqMulti[key] ? [...state.mcqMulti[key]] : [];
+      if(c.checked){
+        if(cur.length >= g.selectCount){
+          c.checked = false;
+          flashToast(`Pick only ${g.selectCount}.`);
+          return;
+        }
+        cur.push(opt.label);
+      } else {
+        const i = cur.indexOf(opt.label); if(i>=0) cur.splice(i,1);
+      }
+      state.mcqMulti[key] = cur;
+      // also write answers for both ids (sorted), only when count == required
+      g.ids.forEach((id,i)=>{
+        state.answers[id] = cur[i] || "";
+      });
+      saveState(); renderPalette();
+    });
+    lab.appendChild(c);
+    const lb = document.createElement("span"); lb.className="lab"; lb.textContent = opt.label; lab.appendChild(lb);
+    const sp = document.createElement("span"); sp.innerHTML = escapeHtml(opt.text); lab.appendChild(sp);
+    opts.appendChild(lab);
+  });
+  row.appendChild(opts);
+  row.appendChild(makeReviewFlag(g.ids[0]));
+  // mark for each id
+  row.appendChild(makeMark(g.ids[0], g.answer, "mcq_multi", g));
+  wrap.appendChild(row);
+}
+
+function renderMatching(g, wrap, list, isHeadings){
+  const box = document.createElement("div"); box.className = "list-box";
+  const ul = document.createElement("ul");
+  list.forEach(o => {
+    const li = document.createElement("li");
+    li.innerHTML = `<span class="lab">${o.label}</span> ${escapeHtml(o.text)}`;
+    ul.appendChild(li);
+  });
+  box.appendChild(ul);
+  wrap.appendChild(box);
+
+  g.items.forEach(it => {
+    const row = document.createElement("div"); row.className = "q-row"; row.dataset.qid = it.id;
+    const qn = document.createElement("span"); qn.className = "qn"; qn.textContent = it.id;
+    const tx = document.createElement("span"); tx.className = "qtxt"; tx.innerHTML = escapeHtml(it.text||it.stem||"");
+    row.appendChild(qn); row.appendChild(tx);
+    const sel = document.createElement("select");
+    sel.innerHTML = `<option value="">— select —</option>` +
+      list.map(o => `<option value="${o.label}">${o.label}${isHeadings ? " — "+escapeHtml(o.text) : (o.text && o.text!==o.label ? " — "+escapeHtml(o.text) : "")}</option>`).join("");
+    if(state.answers[it.id]) sel.value = state.answers[it.id];
+    sel.addEventListener("change", ()=> setAnswer(it.id, sel.value));
+    row.appendChild(sel);
+    row.appendChild(makeReviewFlag(it.id));
+    row.appendChild(makeMark(it.id, it.answer, "single"));
+    wrap.appendChild(row);
+  });
+}
+
+function renderSentenceEndings(g, wrap){
+  const box = document.createElement("div"); box.className = "list-box";
+  const ul = document.createElement("ul");
+  g.endingList.forEach(o => {
+    const li = document.createElement("li");
+    li.innerHTML = `<span class="lab">${o.label}</span> ${escapeHtml(o.text)}`;
+    ul.appendChild(li);
+  });
+  box.appendChild(ul);
+  wrap.appendChild(box);
+
+  g.items.forEach(it => {
+    const row = document.createElement("div"); row.className = "q-row"; row.dataset.qid = it.id;
+    const qn = document.createElement("span"); qn.className = "qn"; qn.textContent = it.id;
+    const tx = document.createElement("span"); tx.className = "qtxt"; tx.innerHTML = escapeHtml(it.stem) + " …";
+    row.appendChild(qn); row.appendChild(tx);
+    const sel = document.createElement("select");
+    sel.innerHTML = `<option value="">— select —</option>` +
+      g.endingList.map(o => `<option value="${o.label}">${o.label} — ${escapeHtml(o.text)}</option>`).join("");
+    if(state.answers[it.id]) sel.value = state.answers[it.id];
+    sel.addEventListener("change", ()=> setAnswer(it.id, sel.value));
+    row.appendChild(sel);
+    row.appendChild(makeReviewFlag(it.id));
+    row.appendChild(makeMark(it.id, it.answer, "single"));
+    wrap.appendChild(row);
+  });
+}
+
+function renderSummary(g, wrap, isWordList){
+  if(g.heading){
+    const h = document.createElement("h4"); h.className = "gheading"; h.textContent = g.heading;
+    wrap.appendChild(h);
+  }
+  if(isWordList && g.wordList){
+    const box = document.createElement("div"); box.className = "list-box";
+    const ul = document.createElement("ul");
+    g.wordList.forEach(o => {
+      const li = document.createElement("li");
+      li.innerHTML = `<span class="lab">${o.label}</span> ${escapeHtml(o.text)}`;
+      ul.appendChild(li);
+    });
+    box.appendChild(ul); wrap.appendChild(box);
+  }
+  const block = document.createElement("div"); block.className = "summary-block";
+  g.segments.forEach(seg => {
+    if(seg.heading){
+      const s = document.createElement("span"); s.className = "heading"; s.textContent = seg.heading;
+      block.appendChild(s); return;
+    }
+    if(seg.text){
+      const s = document.createElement("span"); s.innerHTML = escapeHtml(seg.text); block.appendChild(s); return;
+    }
+    if(seg.gap){
+      if(isWordList){
+        // dropdown of word list labels
+        const sel = document.createElement("select");
+        sel.dataset.qid = seg.gap;
+        sel.innerHTML = `<option value="">—</option>` +
+          g.wordList.map(o => `<option value="${o.label}">${o.label} — ${escapeHtml(o.text)}</option>`).join("");
+        if(state.answers[seg.gap]) sel.value = state.answers[seg.gap];
+        sel.addEventListener("change", ()=> setAnswer(seg.gap, sel.value));
+        // Inline qn marker
+        const qn = document.createElement("span"); qn.className = "qn"; qn.textContent = seg.gap + " ";
+        block.appendChild(qn); block.appendChild(sel);
+        const mk = makeMark(seg.gap, seg.answer, "single");
+        block.appendChild(mk);
+      } else {
+        const qn = document.createElement("span"); qn.className = "qn"; qn.textContent = seg.gap + " ";
+        block.appendChild(qn);
+        const inp = makeGapInput(seg.gap, g.constraint, seg.answer);
+        block.appendChild(inp);
+        const mk = makeMark(seg.gap, seg.answer, "gap");
+        block.appendChild(mk);
+      }
+    }
+  });
+  wrap.appendChild(block);
+}
+
+/* ---------- shared helpers ---------- */
+function makeGapInput(qid, constraint, answer){
+  const inp = document.createElement("input");
+  inp.type = "text"; inp.className = "gap-input"; inp.dataset.qid = qid;
+  inp.autocomplete = "off"; inp.spellcheck = false;
+  inp.placeholder = "Q" + qid;
+  if(state.answers[qid] != null) inp.value = state.answers[qid];
+  const wordLimit = constraintWordLimit(constraint);
+  inp.addEventListener("input", () => {
+    setAnswer(qid, inp.value);
+    if(wordLimit && wordCount(inp.value) > wordLimit){
+      inp.classList.add("warn"); inp.title = `Limit: ${constraint}`;
+    } else { inp.classList.remove("warn"); inp.title = ""; }
+  });
+  return inp;
+}
+function makeReviewFlag(qid){
+  const lab = document.createElement("label"); lab.className="review-flag" + (state.reviewFlags[qid] ? " on":"");
+  const c = document.createElement("input"); c.type="checkbox"; c.checked = !!state.reviewFlags[qid];
+  c.addEventListener("change", () => {
+    state.reviewFlags[qid] = c.checked || undefined;
+    if(!c.checked) delete state.reviewFlags[qid];
+    lab.classList.toggle("on", c.checked);
+    saveState(); renderPalette();
+  });
+  lab.appendChild(c);
+  const s = document.createElement("span"); s.textContent = "Review";
+  lab.appendChild(s);
+  return lab;
+}
+function makeMark(qid, answer, kind, group){
+  const sp = document.createElement("span"); sp.className = "q-mark hide"; sp.dataset.markFor = qid;
+  sp.dataset.kind = kind;
+  if(group) sp.dataset.group = "1";
+  return sp;
+}
+function constraintWordLimit(c){
+  if(!c) return 0;
+  c = c.toUpperCase();
+  if(c.includes("ONE WORD")) return 1;
+  if(c.includes("TWO WORDS")) return 2;
+  if(c.includes("THREE WORDS")) return 3;
+  const m = c.match(/(\d+)\s*WORD/);
+  return m ? parseInt(m[1],10) : 0;
+}
+function wordCount(s){ return (s||"").trim() ? s.trim().split(/\s+/).length : 0; }
+function escapeHtml(s){
+  return (s||"").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+}
+
+function setAnswer(qid, val){
+  if(val === "" || val == null) delete state.answers[qid]; else state.answers[qid] = String(val);
+  saveState(); renderPalette();
+}
+
+/* ============================================================
+   PALETTE + NAVIGATION
+   ============================================================ */
+function renderPalette(){
+  const wrap = $("#palette"); wrap.innerHTML = "";
+  TEST_DATA.passages.forEach((p,i)=>{
+    const grp = document.createElement("div"); grp.className = "palette-grp";
+    const gl = document.createElement("span"); gl.className = "glabel"; gl.textContent = "P"+p.number;
+    grp.appendChild(gl);
+    const ids = ITEMS.filter(it => (it.group.passage||1)-1 === i).map(it=>it.id);
+    ids.forEach(qid => {
+      const b = document.createElement("button"); b.className="pbtn"; b.textContent = qid; b.dataset.qid = qid;
+      if(isAnswered(qid)) b.classList.add("answered");
+      if(state.reviewFlags[qid]) b.classList.add("flagged");
+      if(qid === state.currentQid) b.classList.add("current");
+      if(state.submitted){
+        const ok = isCorrect(qid);
+        b.classList.add(ok ? "correct":"incorrect");
+      }
+      b.addEventListener("click", ()=> gotoQuestion(qid));
+      grp.appendChild(b);
+    });
+    wrap.appendChild(grp);
+  });
+}
+function isAnswered(qid){
+  const item = itemForId(qid);
+  if(!item) return false;
+  if(item.group.type === "mcq_multi"){
+    const key = "mcq_"+item.group.range;
+    const cur = state.mcqMulti[key]||[];
+    return cur.length >= item.group.selectCount;
+  }
+  return !!(state.answers[qid] && String(state.answers[qid]).trim() !== "");
+}
+function isCorrect(qid){
+  const ix = itemForId(qid);
+  if(!ix) return false;
+  const g = ix.group;
+  if(g.type === "mcq_multi"){
+    const key = "mcq_"+g.range;
+    const cur = (state.mcqMulti[key]||[]).slice().sort().join(",");
+    const ans = (g.answer||[]).slice().sort().join(",");
+    return cur === ans;
+  }
+  if(g.type === "tfng" || g.type === "ynng" || g.type === "mcq_single" ||
+     g.type === "matching_headings" || g.type === "matching_features" ||
+     g.type === "sentence_endings" || g.type === "summary_wordlist"){
+    let it;
+    if(g.items) it = g.items.find(x=>x.id===qid);
+    if(g.segments){
+      const seg = g.segments.find(s=>s && s.gap===qid);
+      if(seg) it = {answer:seg.answer};
+    }
+    if(!it) return false;
+    return String(state.answers[qid]||"").toUpperCase().trim() === String(it.answer||"").toUpperCase().trim();
+  }
+  // gap fills
+  let item;
+  if(g.items) item = g.items.find(x=>x.id===qid);
+  if(g.lines){ const found = g.lines.find(l => typeof l === "object" && l.id===qid); if(found) item = found; }
+  if(g.segments){ const seg = g.segments.find(s=>s && s.gap===qid); if(seg) item={answer:seg.answer}; }
+  if(!item) return false;
+  const accepted = Array.isArray(item.answer) ? item.answer : [item.answer];
+  const got = (state.answers[qid]||"").toString().toLowerCase().replace(/\s+/g," ").trim();
+  return accepted.some(a => normalize(a) === got);
+}
+function normalize(s){ return String(s||"").toLowerCase().replace(/\s+/g," ").trim(); }
+
+function gotoQuestion(qid){
+  state.currentQid = qid;
+  const p = partForQid(qid);
+  if(p !== state.currentPart){
+    setPart(p);
+  } else {
+    updateCurrentHighlight();
+  }
+  // scroll into view
+  setTimeout(()=>{
+    const el = document.querySelector(`#questions-panel [data-qid="${qid}"]`);
+    if(el){ el.scrollIntoView({behavior:"smooth",block:"center"}); }
+  }, 30);
+  renderPalette();
+  saveState();
+}
+function updateCurrentHighlight(){
+  $$("#questions-panel .q-row, #questions-panel .q-item, #questions-panel .note-line").forEach(el=>{
+    el.classList.toggle("current", parseInt(el.dataset.qid||"0",10) === state.currentQid);
+  });
+}
+function prev(){ const i = ITEMS.findIndex(x=>x.id===state.currentQid); if(i>0) gotoQuestion(ITEMS[i-1].id); }
+function next(){ const i = ITEMS.findIndex(x=>x.id===state.currentQid); if(i<ITEMS.length-1) gotoQuestion(ITEMS[i+1].id); }
+
+/* ============================================================
+   TIMER
+   ============================================================ */
+let timerInterval = null;
+function startTimer(){
+  if(state.submitted) { renderTimer(); return; }
+  if(timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(()=>{
+    if(state.remaining <= 0){
+      clearInterval(timerInterval); timerInterval=null;
+      state.remaining = 0; renderTimer(); saveState();
+      submit(true); return;
+    }
+    state.remaining -= 1;
+    renderTimer();
+    if(state.remaining % 5 === 0) saveState();
+  }, 1000);
+  renderTimer();
+}
+function renderTimer(){
+  const t = $("#timer");
+  const r = Math.max(0, state.remaining);
+  const mm = String(Math.floor(r/60)).padStart(2,"0");
+  const ss = String(r%60).padStart(2,"0");
+  t.textContent = `${mm}:${ss}`;
+  t.classList.toggle("low", r<=300 && r>60);
+  t.classList.toggle("crit", r<=60);
+}
+
+/* ============================================================
+   HIGHLIGHTING (passages + questions, text-only, persistent)
+   ============================================================ */
+const HL_COLORS = {y:"hl-y", g:"hl-g", p:"hl-p"};
+let lastSelectionInfo = null;
+
+function findZone(node){
+  let n = node && node.nodeType === 3 ? node.parentNode : node;
+  while(n && n !== document.body){
+    if(n.classList && n.classList.contains("hl-zone")) return n;
+    n = n.parentNode;
+  }
+  return null;
+}
+function findRegion(node){
+  let n = node && node.nodeType === 3 ? node.parentNode : node;
+  while(n && n !== document.body){
+    if(n.dataset && n.dataset.hlId) return n;
+    n = n.parentNode;
+  }
+  return null;
+}
+function selectionInsideRegion(){
+  const sel = window.getSelection();
+  if(!sel || sel.rangeCount === 0 || sel.isCollapsed) return null;
+  const r = sel.getRangeAt(0);
+  const zone = findZone(r.commonAncestorContainer);
+  if(!zone) return null;
+  // Determine region: walk up from start container to a region
+  const startRegion = findRegion(r.startContainer);
+  const endRegion = findRegion(r.endContainer);
+  if(!startRegion || startRegion !== endRegion) return null; // limit highlight to one region
+  // Disallow if range crosses any input/select
+  if(rangeContainsForm(r)) return null;
+  return { range:r, region:startRegion, zone };
+}
+function rangeContainsForm(range){
+  const frag = range.cloneContents();
+  return !!frag.querySelector("input,select,textarea,button");
+}
+
+// compute char offsets of a range within a region (text-only)
+function rangeToOffsets(range, region){
+  let start=-1, end=-1, idx=0;
+  const walker = document.createTreeWalker(region, NodeFilter.SHOW_TEXT, {
+    acceptNode(n){
+      // skip text inside form controls
+      let p = n.parentNode;
+      while(p && p!==region){ if(/^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(p.nodeName)) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  let node;
+  while((node = walker.nextNode())){
+    const len = node.nodeValue.length;
+    if(node === range.startContainer) start = idx + range.startOffset;
+    if(node === range.endContainer) { end = idx + range.endOffset; break; }
+    idx += len;
+  }
+  if(start===-1 || end===-1) return null;
+  if(start>end) [start,end]=[end,start];
+  if(start===end) return null;
+  return {start, end};
+}
+function applyHighlightToRegion(region, start, end, color, note){
+  const walker = document.createTreeWalker(region, NodeFilter.SHOW_TEXT, {
+    acceptNode(n){
+      let p = n.parentNode;
+      while(p && p!==region){ if(/^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(p.nodeName)) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  let node, idx=0;
+  const toWrap = [];
+  while((node = walker.nextNode())){
+    const len = node.nodeValue.length;
+    const s = Math.max(start, idx);
+    const e = Math.min(end, idx+len);
+    if(s < e){
+      toWrap.push({node, s: s-idx, e: e-idx});
+    }
+    idx += len;
+    if(idx >= end) break;
+  }
+  // wrap from end-to-start to preserve offsets
+  toWrap.reverse().forEach(w => {
+    const text = w.node.nodeValue;
+    const before = text.slice(0, w.s);
+    const mid = text.slice(w.s, w.e);
+    const after = text.slice(w.e);
+    const span = document.createElement("span");
+    span.className = "hl " + (HL_COLORS[color]||"hl-y") + (note?" hl-note":"");
+    if(note){ span.dataset.note = note; span.title = note; }
+    span.dataset.color = color;
+    span.textContent = mid;
+    const frag = document.createDocumentFragment();
+    if(before) frag.appendChild(document.createTextNode(before));
+    frag.appendChild(span);
+    if(after) frag.appendChild(document.createTextNode(after));
+    w.node.parentNode.replaceChild(frag, w.node);
+  });
+}
+function getStored(){ try{ return JSON.parse(localStorage.getItem(HLKEY)||"{}"); }catch(e){ return {}; } }
+function setStored(s){ try{ localStorage.setItem(HLKEY, JSON.stringify(s)); }catch(e){} }
+
+function storeHighlight(regionId, h){
+  const s = getStored();
+  s[regionId] = s[regionId] || [];
+  s[regionId].push(h);
+  s[regionId].sort((a,b)=> a.start-b.start);
+  setStored(s);
+}
+function clearHighlightAt(span){
+  const region = findRegion(span);
+  if(!region) return;
+  const text = span.textContent;
+  // Recompute its start/end by finding the span in DOM text walk
+  // Simpler: unwrap span then re-serialize that region from DOM
+  const parent = span.parentNode;
+  while(span.firstChild) parent.insertBefore(span.firstChild, span);
+  parent.removeChild(span);
+  parent.normalize();
+  reSerializeRegion(region);
+}
+function reSerializeRegion(region){
+  const s = getStored();
+  const arr = [];
+  const walker = document.createTreeWalker(region, NodeFilter.SHOW_ELEMENT, {
+    acceptNode(n){ return n.classList && n.classList.contains("hl") ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP; }
+  });
+  // Compute offsets for each hl span by counting text
+  const hls = []; let cur;
+  while((cur = walker.nextNode())){ hls.push(cur); }
+  hls.forEach(span => {
+    // start = char count of preceding text in region (excluding spans following it)
+    const r = document.createRange();
+    r.setStart(region, 0);
+    r.setEndBefore(span);
+    const before = r.toString().length;
+    const mid = span.textContent.length;
+    arr.push({start: before, end: before+mid, color: span.dataset.color || "y", note: span.dataset.note || ""});
+  });
+  if(arr.length) s[region.dataset.hlId] = arr; else delete s[region.dataset.hlId];
+  setStored(s);
+}
+function restoreHighlightsInZones(){
+  const s = getStored();
+  ["#passage-panel","#questions-panel"].forEach(sel => {
+    $$(sel + " [data-hl-id]").forEach(region => {
+      const arr = s[region.dataset.hlId];
+      if(!arr || !arr.length) return;
+      // Apply from end to start to keep offsets stable
+      const sorted = arr.slice().sort((a,b)=> b.start-a.start);
+      sorted.forEach(h => applyHighlightToRegion(region, h.start, h.end, h.color, h.note));
+    });
+  });
+}
+
+/* selection toolbar */
+function positionToolbar(rect){
+  const tb = $("#hl-toolbar");
+  tb.classList.add("on");
+  const tbw = tb.offsetWidth || 180, tbh = tb.offsetHeight || 36;
+  const left = Math.max(8, Math.min(window.innerWidth - tbw - 8, rect.left + rect.width/2 - tbw/2));
+  const top  = Math.max(8, rect.top - tbh - 6) + window.scrollY;
+  tb.style.left = left + "px";
+  tb.style.top = (rect.top - tbh - 6 < 0 ? rect.bottom + 6 : rect.top - tbh - 6) + window.scrollY + "px";
+}
+function hideToolbar(){ $("#hl-toolbar").classList.remove("on"); }
+function showCtxMenu(x, y, info){
+  const m = $("#ctxmenu");
+  m.innerHTML = "";
+  const mk = (label, act, color="") => {
+    const b = document.createElement("button"); b.type="button";
+    b.innerHTML = (color?`<span class="dot" style="background:var(--hl-${color})"></span>`:"") + label;
+    b.addEventListener("click", e => { e.preventDefault(); ctxAction(act, color, info); m.classList.remove("on"); });
+    m.appendChild(b);
+  };
+  if(info.kind === "selection"){
+    mk("Highlight yellow","hl","y"); mk("Highlight green","hl","g"); mk("Highlight pink","hl","p");
+    mk("Add note","note");
+    mk("Cancel","cancel");
+  } else if(info.kind === "hl"){
+    mk("Change to yellow","hl","y"); mk("Change to green","hl","g"); mk("Change to pink","hl","p");
+    mk("Edit note","note");
+    mk("Remove highlight","clear");
+  }
+  m.style.left = Math.min(window.innerWidth - 200, x) + "px";
+  m.style.top = (y + window.scrollY) + "px";
+  m.classList.add("on");
+}
+function ctxAction(act, color, info){
+  if(act === "cancel"){ hideToolbar(); return; }
+  if(info.kind === "selection"){
+    if(act === "hl"){ applyAndStore(info, color, ""); }
+    else if(act === "note"){
+      openNotePopover({mode:"new", info, color: color||"y"});
+    }
+  } else if(info.kind === "hl"){
+    const span = info.span;
+    const region = findRegion(span);
+    if(act === "hl"){
+      span.className = "hl " + (HL_COLORS[color]||"hl-y") + (span.dataset.note?" hl-note":"");
+      span.dataset.color = color;
+      reSerializeRegion(region);
+    } else if(act === "note"){
+      openNotePopover({mode:"edit", span});
+    } else if(act === "clear"){
+      clearHighlightAt(span);
+    }
+  }
+  hideToolbar();
+}
+
+function applyAndStore(info, color, note){
+  const offs = rangeToOffsets(info.range, info.region);
+  if(!offs) return;
+  applyHighlightToRegion(info.region, offs.start, offs.end, color, note);
+  reSerializeRegion(info.region);
+  window.getSelection()?.removeAllRanges();
+  hideToolbar();
+}
+
+document.addEventListener("mouseup", e => {
+  // ignore mouseups originating in the toolbar/menu/popover
+  if(e.target.closest("#hl-toolbar,#ctxmenu,#note-pop,#modal")) return;
+  setTimeout(()=>{
+    const info = selectionInsideRegion();
+    if(!info){ hideToolbar(); lastSelectionInfo = null; return; }
+    const rect = info.range.getBoundingClientRect();
+    if(!rect || (rect.width===0 && rect.height===0)){ hideToolbar(); return; }
+    lastSelectionInfo = info;
+    positionToolbar(rect);
+  }, 0);
+});
+document.addEventListener("touchend", e => {
+  if(e.target.closest("#hl-toolbar,#ctxmenu,#note-pop,#modal")) return;
+  setTimeout(()=>{
+    const info = selectionInsideRegion();
+    if(!info){ hideToolbar(); return; }
+    const rect = info.range.getBoundingClientRect();
+    lastSelectionInfo = info;
+    positionToolbar(rect);
+  }, 20);
+});
+document.addEventListener("mousedown", e => {
+  if(!e.target.closest("#hl-toolbar,#ctxmenu,#note-pop")) {
+    // only hide toolbar when clicking outside
+    if(!window.getSelection() || window.getSelection().isCollapsed){
+      // delay so toolbar buttons still work
+      setTimeout(hideToolbar, 0);
+    }
+  }
+  $("#ctxmenu").classList.remove("on");
+});
+$("#hl-toolbar").addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b) return;
+  const act = b.dataset.act, color = b.dataset.color || "y";
+  if(!lastSelectionInfo) return;
+  if(act === "hl") applyAndStore(lastSelectionInfo, color, "");
+  else if(act === "note") openNotePopover({mode:"new", info:lastSelectionInfo, color:"y"});
+  else if(act === "clear"){
+    // clear any hl spans inside the selection
+    const frag = lastSelectionInfo.range.cloneContents();
+    if(frag.querySelector(".hl")){
+      // Walk highlights inside the range and unwrap
+      const startReg = lastSelectionInfo.region;
+      const hls = [...startReg.querySelectorAll(".hl")];
+      hls.forEach(span => {
+        const r2 = document.createRange();
+        r2.selectNodeContents(span);
+        if(lastSelectionInfo.range.compareBoundaryPoints(Range.END_TO_START, r2) <= 0 &&
+           lastSelectionInfo.range.compareBoundaryPoints(Range.START_TO_END, r2) >= 0){
+          // partial overlap is fine — unwrap whole span
+          const parent = span.parentNode;
+          while(span.firstChild) parent.insertBefore(span.firstChild, span);
+          parent.removeChild(span);
+          parent.normalize();
+        }
+      });
+      reSerializeRegion(startReg);
+    }
+    hideToolbar();
+  }
+});
+
+// Right-click on selection or highlight => custom menu
+document.addEventListener("contextmenu", e => {
+  // selection?
+  const info = selectionInsideRegion();
+  if(info){
+    e.preventDefault();
+    lastSelectionInfo = info;
+    showCtxMenu(e.clientX, e.clientY, {kind:"selection"});
+    return;
+  }
+  // existing hl?
+  const span = e.target.closest && e.target.closest(".hl");
+  if(span){
+    e.preventDefault();
+    showCtxMenu(e.clientX, e.clientY, {kind:"hl", span});
+  }
+});
+
+// Click on hl marker — show note popover for edit
+document.addEventListener("click", e => {
+  const span = e.target.closest && e.target.closest(".hl");
+  if(span && !e.target.closest("#hl-toolbar,#ctxmenu,#note-pop")){
+    if(e.button === 0){
+      // single-click on highlight opens note popover
+      openNotePopover({mode:"edit", span});
+    }
+  }
+});
+
+/* Note popover */
+function openNotePopover(opts){
+  const pop = $("#note-pop");
+  const ta = $("#noteText");
+  let target = null;
+  if(opts.mode === "edit"){
+    target = opts.span;
+    ta.value = target.dataset.note || "";
+    placeAtRect(pop, target.getBoundingClientRect());
+  } else if(opts.mode === "new"){
+    // create empty highlight first
+    const info = opts.info;
+    const offs = rangeToOffsets(info.range, info.region);
+    if(!offs) return;
+    applyHighlightToRegion(info.region, offs.start, offs.end, opts.color, "");
+    reSerializeRegion(info.region);
+    window.getSelection()?.removeAllRanges();
+    // find the newly created span
+    const hls = info.region.querySelectorAll(".hl");
+    target = hls[hls.length-1];
+    if(!target) return;
+    ta.value = "";
+    placeAtRect(pop, target.getBoundingClientRect());
+  }
+  pop.classList.add("on");
+  $("#noteSave").onclick = () => {
+    target.dataset.note = ta.value;
+    target.title = ta.value;
+    target.classList.toggle("hl-note", !!ta.value);
+    reSerializeRegion(findRegion(target));
+    pop.classList.remove("on");
+  };
+  $("#noteDel").onclick = () => {
+    delete target.dataset.note;
+    target.title = "";
+    target.classList.remove("hl-note");
+    reSerializeRegion(findRegion(target));
+    pop.classList.remove("on");
+  };
+  $("#noteCancel").onclick = () => { pop.classList.remove("on"); };
+}
+function placeAtRect(pop, rect){
+  pop.style.left = Math.max(8, Math.min(window.innerWidth - 260, rect.left)) + "px";
+  pop.style.top = (rect.bottom + 4 + window.scrollY) + "px";
+}
+
+/* clear all */
+$("#clearAll").addEventListener("click", () => {
+  confirmDialog("Remove ALL highlights and notes?", () => {
+    setStored({});
+    [...document.querySelectorAll(".hl")].forEach(span => {
+      const parent = span.parentNode;
+      while(span.firstChild) parent.insertBefore(span.firstChild, span);
+      parent.removeChild(span);
+      parent && parent.normalize && parent.normalize();
+    });
+    flashToast("All highlights cleared.");
+  });
+});
+
+/* ============================================================
+   SUBMIT / RESULTS / REVIEW
+   ============================================================ */
+function gradeAll(){
+  let correct = 0;
+  // gather all answerable qids
+  const counted = new Set();
+  ITEMS.forEach(it => {
+    if(counted.has(it.id)) return;
+    counted.add(it.id);
+    if(it.group.type === "mcq_multi"){
+      // single grade for the group; counts for each slot
+      const ok = isCorrect(it.group.ids[0]);
+      it.group.ids.forEach(id => counted.add(id));
+      if(ok) correct += it.group.ids.length;
+    } else {
+      if(isCorrect(it.id)) correct += 1;
+    }
+  });
+  return correct;
+}
+function bandFor(score){
+  if(score>=39) return 9.0;
+  if(score>=37) return 8.5;
+  if(score>=35) return 8.0;
+  if(score>=33) return 7.5;
+  if(score>=30) return 7.0;
+  if(score>=27) return 6.5;
+  if(score>=23) return 6.0;
+  if(score>=19) return 5.5;
+  if(score>=15) return 5.0;
+  if(score>=13) return 4.5;
+  if(score>=10) return 4.0;
+  if(score>=8) return 3.5;
+  if(score>=6) return 3.0;
+  if(score>=4) return 2.5;
+  return 2.0;
+}
+function submit(timesUp){
+  if(state.submitted){ openResultsModal(timesUp); return; }
+  if(!timesUp){
+    const unanswered = ITEMS.filter(it => !isAnswered(it.id)).length;
+    confirmDialog(`Submit all? ${unanswered ? unanswered+" unanswered." : "All answered."}`, () => doSubmit(false));
+    return;
+  }
+  doSubmit(true);
+}
+function doSubmit(timesUp){
+  state.submitted = true;
+  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+  saveState();
+  renderPalette();
+  openResultsModal(timesUp);
+}
+function openResultsModal(timesUp){
+  const score = gradeAll();
+  const band = bandFor(score);
+  const m = $("#modal");
+  m.innerHTML = `
+    <div class="modal-card">
+      <h2>Results${timesUp ? " · Time up":""}</h2>
+      <div class="meta">${TEST_DATA.title}</div>
+      <div class="score"><div class="big">${score}/40</div><div class="band">Estimated band ${band.toFixed(1)}</div></div>
+      <div class="meta">Approximate Academic Reading band; actual exam bands may vary.</div>
+      <div class="actions">
+        <button class="tool" id="closeModal">Close</button>
+        <button class="tool primary" id="reviewBtn">Review answers</button>
+      </div>
+    </div>`;
+  m.classList.add("on");
+  $("#closeModal").onclick = () => m.classList.remove("on");
+  $("#reviewBtn").onclick = () => { m.classList.remove("on"); enterReviewMode(); };
+}
+function enterReviewMode(){
+  // Re-render questions of all parts with marks shown
+  showMarks();
+  flashToast("Review mode: ✓/✗ shown; correct answers revealed.");
+}
+function showMarks(){
+  // Re-render current part with marks
+  renderQuestions();
+  // Then walk DOM to populate marks
+  $$("[data-mark-for]").forEach(sp => {
+    const qid = parseInt(sp.dataset.markFor,10);
+    const item = itemForId(qid);
+    if(!item) return;
+    const g = item.group;
+    sp.classList.remove("hide");
+    let ok = false;
+    if(g.type === "mcq_multi"){
+      ok = isCorrect(g.ids[0]);
+    } else {
+      ok = isCorrect(qid);
+    }
+    const ans = state.answers[qid];
+    const isBlank = !isAnswered(qid);
+    if(isBlank){ sp.className = "q-mark blank"; sp.textContent = "—"; }
+    else if(ok){ sp.className = "q-mark ok"; sp.textContent = "✓"; }
+    else { sp.className = "q-mark bad"; sp.textContent = "✗"; }
+    // append correct answer text underneath
+    let correctText = "";
+    if(g.type === "mcq_multi"){ correctText = (g.answer||[]).join(", "); }
+    else if(g.items){
+      const it = g.items.find(x=>x.id===qid);
+      correctText = Array.isArray(it?.answer) ? it.answer.join(" / ") : (it?.answer||"");
+    } else if(g.lines){
+      const ln = g.lines.find(l => typeof l==="object" && l.id===qid);
+      correctText = Array.isArray(ln?.answer) ? ln.answer.join(" / ") : (ln?.answer||"");
+    } else if(g.segments){
+      const seg = g.segments.find(s=>s && s.gap===qid);
+      correctText = Array.isArray(seg?.answer) ? seg.answer.join(" / ") : (seg?.answer||"");
+    }
+    if(!ok){
+      const row = sp.parentNode;
+      const c = document.createElement("div"); c.className = "q-correct";
+      c.innerHTML = `<b>Correct:</b> ${escapeHtml(correctText)}`;
+      row.appendChild(c);
+      const y = document.createElement("div"); y.className = "q-yours";
+      y.innerHTML = `<b>Your answer:</b> ${escapeHtml(isBlank ? "(blank)" : (g.type==="mcq_multi" ? (state.mcqMulti["mcq_"+g.range]||[]).join(", ") : String(ans||"")))}`;
+      row.appendChild(y);
+    }
+  });
+  restoreHighlightsInZones();
+}
+
+/* ============================================================
+   CONFIRM + TOAST
+   ============================================================ */
+function confirmDialog(msg, onYes){
+  const m = $("#modal");
+  m.innerHTML = `
+    <div class="modal-card confirm">
+      <h2>Confirm</h2>
+      <div class="meta">${escapeHtml(msg)}</div>
+      <div class="actions">
+        <button class="tool" id="cNo">Cancel</button>
+        <button class="tool primary" id="cYes">Yes</button>
+      </div>
+    </div>`;
+  m.classList.add("on");
+  $("#cNo").onclick = () => m.classList.remove("on");
+  $("#cYes").onclick = () => { m.classList.remove("on"); onYes && onYes(); };
+}
+function flashToast(msg){
+  const t = $("#toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(flashToast._tm); flashToast._tm = setTimeout(()=> t.classList.remove("on"), 1800);
+}
+
+/* ============================================================
+   HEADER ACTIONS
+   ============================================================ */
+$$("#topbar [data-size]").forEach(b => b.addEventListener("click", ()=>{ ui.size = b.dataset.size; saveUI(); applyUI(); }));
+$$("#topbar [data-theme]").forEach(b => b.addEventListener("click", ()=>{ ui.theme = b.dataset.theme; saveUI(); applyUI(); }));
+$("#timerToggle").addEventListener("click", ()=>{ ui.timerHidden = !ui.timerHidden; saveUI(); applyUI(); });
+$("#resetBtn").addEventListener("click", ()=>{
+  confirmDialog("Reset all answers, highlights and timer for this test?", ()=>{
+    Object.assign(state, defaultState());
+    saveState(); setStored({});
+    renderTabs(); setPart(0); renderPalette();
+    startTimer();
+    flashToast("Test reset.");
+  });
+});
+$("#submitBtn").addEventListener("click", ()=> submit(false));
+$("#prevBtn").addEventListener("click", prev);
+$("#nextBtn").addEventListener("click", next);
+$("#mobileSwitch").addEventListener("click", ()=>{
+  const sp = $("#split");
+  const showing = sp.classList.contains("show-questions");
+  sp.classList.toggle("show-questions", !showing);
+  sp.classList.toggle("show-passage", showing);
+  $("#mobileSwitch").textContent = showing ? "Show Questions" : "Show Passage";
+});
+
+/* Divider drag */
+(() => {
+  const d = $("#divider"); let dragging=false;
+  d.addEventListener("mousedown", e => { dragging=true; d.classList.add("dragging"); e.preventDefault(); });
+  window.addEventListener("mousemove", e => {
+    if(!dragging) return;
+    const main = $("#split").getBoundingClientRect();
+    const pct = ((e.clientX - main.left) / main.width) * 100;
+    ui.dividerPct = Math.max(20, Math.min(80, pct));
+    applyDivider();
+  });
+  window.addEventListener("mouseup", () => { if(dragging){ dragging=false; d.classList.remove("dragging"); saveUI(); } });
+})();
+
+window.addEventListener("resize", applyDivider);
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function init(){
+  $("#testTitle").textContent = TEST_DATA.title;
+  document.title = TEST_DATA.title;
+  applyUI();
+  renderTabs();
+  setPart(state.currentPart || 0);
+  if(!state.currentQid) state.currentQid = ITEMS[0]?.id || 1;
+  renderPalette();
+  startTimer();
+  if(state.submitted){ showMarks(); }
+}
+init();
+
+})();
+</script>
+</body>
+</html>
