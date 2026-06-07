@@ -1,1761 +1,649 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" data-fontsize="md">
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>CDI Reading 1</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CD IELTS Reading – CDI Reading 1 | pangea8.com</title>
 <style>
-:root{
-  --bg:#0f1115; --surface:#171a21; --surface-2:#1e222b; --line:#2b303c; --line-2:#3a4150;
-  --text:#e6e9ef; --muted:#9aa3b2; --accent:#5b8dff; --accent-2:#9aa9ff;
-  --good:#39c172; --bad:#ff6b6b; --warn:#ffb454; --hl-y:#f5d76e; --hl-g:#86e8a0; --hl-p:#ff9bd0;
-  --shadow:0 10px 30px rgba(0,0,0,.35);
-  --r:10px;
-}
-html[data-theme="light"]{
-  --bg:#f5f7fb; --surface:#ffffff; --surface-2:#f0f3f9; --line:#dfe4ee; --line-2:#c8cfde;
-  --text:#1a1f2a; --muted:#5b6577; --accent:#2956d6; --accent-2:#5b78d6;
-  --good:#1a9e58; --bad:#cc3030; --warn:#b8770a; --hl-y:#fff08a; --hl-g:#b9f5c5; --hl-p:#ffc6e2;
-  --shadow:0 8px 22px rgba(31,52,99,.12);
-}
-html[data-theme="hc"]{
-  --bg:#000; --surface:#000; --surface-2:#111; --line:#fff; --line-2:#fff;
-  --text:#fff; --muted:#ffd000; --accent:#ffe600; --accent-2:#ffe600;
-  --good:#39ff39; --bad:#ff3939; --warn:#ffe600; --hl-y:#ffe600; --hl-g:#39ff39; --hl-p:#ff66cc;
-  --shadow:none;
-}
-html[data-fontsize="sm"]{ --fs-passage:14.5px; --fs-q:14.5px; }
-html[data-fontsize="md"]{ --fs-passage:16px; --fs-q:16px; }
-html[data-fontsize="lg"]{ --fs-passage:18.5px; --fs-q:18.5px; }
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--text);
-  font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;-webkit-text-size-adjust:100%}
-body{display:flex;flex-direction:column;min-height:100vh;overflow:hidden}
-button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer}
-.icon{width:18px;height:18px;display:inline-block;vertical-align:-3px;fill:currentColor}
-
-/* ------- Header ------- */
-#topbar{
-  flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:10px 14px;
-  background:var(--surface); border-bottom:1px solid var(--line); position:relative; z-index:50;
-}
-#topbar .title{font-weight:700;font-size:15.5px;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw}
-#topbar .spacer{flex:1}
-.tool{
-  display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid var(--line-2);
-  background:var(--surface-2);color:var(--text);border-radius:8px;font-size:13px;line-height:1;
-}
-.tool:hover{border-color:var(--accent)}
-.tool[disabled]{opacity:.5;cursor:not-allowed}
-.tool.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-.tool.primary:hover{filter:brightness(1.08)}
-.tool.danger{color:var(--bad);border-color:var(--bad)}
-.tool.warn{color:var(--warn);border-color:var(--warn)}
-#timer{font-variant-numeric:tabular-nums;font-weight:700;font-size:15px;padding:7px 12px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line-2);min-width:96px;text-align:center}
-#timer.low{color:var(--warn);border-color:var(--warn)}
-#timer.crit{color:var(--bad);border-color:var(--bad);animation:pulse 1s infinite}
-#timer.hidden{visibility:hidden}
-@keyframes pulse{50%{opacity:.55}}
-.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:8px;overflow:hidden;background:var(--surface-2)}
-.seg button{background:transparent;border:0;padding:7px 10px;font-size:13px;border-right:1px solid var(--line-2)}
-.seg button:last-child{border-right:0}
-.seg button.active{background:var(--accent);color:#fff}
-
-/* ------- Part tabs ------- */
-#parttabs{
-  flex:0 0 auto;display:flex;background:var(--surface);border-bottom:1px solid var(--line);
-  overflow-x:auto;scrollbar-width:thin;
-}
-#parttabs button{
-  flex:1;min-width:180px;padding:11px 14px;border:0;background:transparent;color:var(--muted);
-  font-weight:600;font-size:13.5px;border-bottom:3px solid transparent;white-space:nowrap;
-}
-#parttabs button.active{color:var(--text);border-bottom-color:var(--accent);background:var(--surface-2)}
-#parttabs button:hover{color:var(--text)}
-
-/* ------- Main split ------- */
-#split{flex:1 1 auto;display:flex;min-height:0;position:relative}
-#passage-panel,#questions-panel{
-  flex:1 1 50%;min-width:0;overflow:auto;padding:18px 22px 28px;background:var(--bg);
-  scroll-behavior:smooth;
-}
-#passage-panel{border-right:1px solid var(--line)}
-#divider{
-  flex:0 0 6px;cursor:col-resize;background:var(--line);position:relative;
-}
-#divider:hover, #divider.dragging{background:var(--accent)}
-.passage-title{font-size:20px;font-weight:700;margin:4px 0 4px}
-.passage-sub{color:var(--muted);font-size:13.5px;margin-bottom:14px}
-.passage-prose{font-size:var(--fs-passage);line-height:1.65;color:var(--text)}
-.passage-prose p{margin:0 0 12px;position:relative;padding-left:0}
-.passage-prose p.with-label{padding-left:34px}
-.passage-prose p.with-label .plabel{
-  position:absolute;left:0;top:1px;font-weight:700;color:var(--accent);font-size:14.5px;
-  width:24px;text-align:center;padding:1px 0;border:1px solid var(--line-2);border-radius:6px;
-}
-.q-header{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:4px 0 8px}
-.q-range{font-size:13.5px;font-weight:700;color:var(--accent)}
-.q-instructions{font-size:var(--fs-q);color:var(--text);margin:6px 0 6px;line-height:1.55}
-.q-instructions em, .q-instructions b{font-style:normal;font-weight:700}
-.constraint{display:inline-block;font-size:11.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
-  background:var(--warn);color:#1a1f2a;border-radius:6px;padding:3px 7px;margin-left:6px;vertical-align:1px}
-.group{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:14px 14px 10px;margin:10px 0 18px}
-.group h4.gheading{margin:0 0 10px;font-size:15px;font-weight:700}
-.q-item{padding:9px 6px;border-top:1px dashed var(--line);font-size:var(--fs-q);line-height:1.55}
-.q-item:first-of-type{border-top:0}
-.q-item.current{background:rgba(91,141,255,.06);border-radius:8px}
-.q-num{display:inline-block;min-width:22px;font-weight:700;color:var(--accent);margin-right:6px}
-.q-text{display:inline}
-.q-stem{font-weight:600;margin-bottom:6px}
-.q-options{display:flex;flex-direction:column;gap:6px;margin:6px 0 2px;padding-left:28px}
-.q-options label{display:flex;gap:8px;align-items:flex-start;cursor:pointer;padding:4px 6px;border-radius:6px}
-.q-options label:hover{background:var(--surface-2)}
-.q-options input{margin-top:3px}
-.q-options .lab{font-weight:700;color:var(--accent);min-width:18px;display:inline-block}
-.q-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:7px 6px;border-top:1px dashed var(--line);font-size:var(--fs-q)}
-.q-row:first-of-type{border-top:0}
-.q-row .qn{font-weight:700;color:var(--accent);min-width:30px}
-.q-row .qtxt{flex:1;min-width:140px}
-.q-row select{
-  background:var(--surface-2);border:1px solid var(--line-2);border-radius:6px;padding:6px 8px;min-width:170px;
-}
-.q-row select:focus{outline:2px solid var(--accent);outline-offset:1px}
-.gap-input{
-  display:inline-block;background:var(--surface-2);border:1px solid var(--line-2);border-radius:6px;
-  padding:3px 8px;min-width:120px;color:var(--text);font:inherit;margin:0 3px;vertical-align:baseline;
-}
-.gap-input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
-.gap-input.warn{border-color:var(--warn)}
-.note-line{padding:6px 4px;font-size:var(--fs-q);line-height:1.55}
-.note-line.heading{font-weight:700;margin-top:6px}
-.note-line .qn{font-weight:700;color:var(--accent);margin-right:6px}
-.review-flag{display:inline-flex;gap:5px;align-items:center;font-size:12px;color:var(--muted);margin-left:8px;cursor:pointer;user-select:none}
-.review-flag input{accent-color:var(--warn)}
-.review-flag.on{color:var(--warn)}
-
-/* word list / heading list display */
-.list-box{
-  background:var(--surface-2);border:1px dashed var(--line-2);border-radius:8px;padding:10px 12px;margin:8px 0 12px;
-  font-size:var(--fs-q);line-height:1.5;
-}
-.list-box .lab{font-weight:700;color:var(--accent);min-width:20px;display:inline-block}
-.list-box ul{list-style:none;margin:0;padding:0}
-.list-box li{padding:2px 0}
-
-/* summary segments */
-.summary-block{font-size:var(--fs-q);line-height:1.75}
-.summary-block .heading{font-weight:700;margin-top:8px;display:block}
-
-/* mcq_multi stem block */
-.mcq-multi-stem{font-weight:600;margin-bottom:8px}
-.mcq-multi-ids{font-size:12px;color:var(--muted);margin-bottom:4px}
-
-/* Bottom nav / palette */
-#bottomnav{
-  flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface);
-  border-top:1px solid var(--line);position:relative;z-index:30;
-}
-#bottomnav .palette-wrap{flex:1;display:flex;align-items:center;gap:8px;overflow-x:auto}
-.palette-grp{display:flex;align-items:center;gap:5px;padding:3px 6px;border:1px solid var(--line-2);border-radius:8px;background:var(--surface-2)}
-.palette-grp .glabel{font-size:11px;color:var(--muted);margin-right:4px;font-weight:700;letter-spacing:.3px}
-.pbtn{
-  width:30px;height:28px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;
-  background:transparent;border:1px solid var(--line-2);border-radius:6px;color:var(--text);position:relative;
-}
-.pbtn:hover{border-color:var(--accent)}
-.pbtn.answered{background:var(--accent);color:#fff;border-color:var(--accent)}
-.pbtn.flagged::after{content:"";position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--warn);border:1px solid var(--surface)}
-.pbtn.current{outline:2px solid var(--accent);outline-offset:1px}
-.pbtn.correct{background:var(--good);color:#fff;border-color:var(--good)}
-.pbtn.incorrect{background:var(--bad);color:#fff;border-color:var(--bad)}
-.navbtns{display:flex;gap:6px}
-#mobileSwitch{display:none}
-@media (max-width: 900px){
-  #passage-panel,#questions-panel{flex:1 1 100%;padding:14px}
-  #divider{display:none}
-  #split.show-questions #passage-panel{display:none}
-  #split.show-passage #questions-panel{display:none}
-  #mobileSwitch{display:inline-flex}
-  #topbar .title{max-width:30vw;font-size:13.5px}
-  #topbar .hide-mobile{display:none}
-  .seg button{padding:7px 8px;font-size:12px}
-  #parttabs button{min-width:140px;padding:9px 10px;font-size:12.5px}
-  .pbtn{width:26px;height:26px;font-size:11px}
-}
-
-/* Highlight system */
-.hl{border-radius:3px;padding:0 1px;box-decoration-break:clone;-webkit-box-decoration-break:clone;cursor:pointer}
-.hl-y{background:var(--hl-y);color:#1a1f2a}
-.hl-g{background:var(--hl-g);color:#1a1f2a}
-.hl-p{background:var(--hl-p);color:#1a1f2a}
-.hl-note{outline:2px dotted var(--accent);outline-offset:1px}
-.hl-note::after{content:"📝";font-size:10px;vertical-align:super;margin-left:1px}
-#hl-toolbar{
-  position:absolute;display:none;background:var(--surface);border:1px solid var(--line-2);border-radius:10px;
-  box-shadow:var(--shadow);padding:5px;gap:3px;z-index:100;
-}
-#hl-toolbar.on{display:inline-flex}
-#hl-toolbar button{
-  width:30px;height:28px;border:1px solid var(--line-2);background:var(--surface-2);border-radius:6px;
-  color:var(--text);display:inline-flex;align-items:center;justify-content:center;font-size:13px;
-}
-#hl-toolbar button.cy{background:var(--hl-y);color:#1a1f2a}
-#hl-toolbar button.cg{background:var(--hl-g);color:#1a1f2a}
-#hl-toolbar button.cp{background:var(--hl-p);color:#1a1f2a}
-#hl-toolbar button.note{background:var(--surface-2)}
-#hl-toolbar button.clear{background:var(--bad);color:#fff;border-color:var(--bad)}
-
-/* Context menu (right click) */
-#ctxmenu{
-  position:absolute;display:none;background:var(--surface);border:1px solid var(--line-2);border-radius:10px;
-  box-shadow:var(--shadow);padding:5px 0;z-index:100;min-width:170px;
-}
-#ctxmenu.on{display:block}
-#ctxmenu button{display:block;width:100%;text-align:left;background:transparent;border:0;padding:7px 14px;font-size:13px;color:var(--text)}
-#ctxmenu button:hover{background:var(--surface-2)}
-#ctxmenu .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:-1px}
-
-/* Note popover */
-#note-pop{
-  position:absolute;display:none;background:var(--surface);border:1px solid var(--line-2);border-radius:10px;
-  box-shadow:var(--shadow);padding:10px;z-index:100;width:240px;
-}
-#note-pop.on{display:block}
-#note-pop textarea{
-  width:100%;height:78px;background:var(--surface-2);border:1px solid var(--line-2);border-radius:6px;
-  padding:6px 8px;resize:vertical;color:var(--text);
-}
-#note-pop .row{display:flex;justify-content:space-between;gap:6px;margin-top:8px}
-
-/* Modal */
-#modal{
-  position:fixed;inset:0;background:rgba(8,10,14,.6);display:none;align-items:center;justify-content:center;
-  padding:20px;z-index:200;
-}
-#modal.on{display:flex}
-.modal-card{
-  background:var(--surface);border:1px solid var(--line-2);border-radius:14px;max-width:560px;width:100%;
-  padding:22px 22px 18px;box-shadow:var(--shadow);
-}
-.modal-card h2{margin:0 0 6px;font-size:20px}
-.modal-card .score{display:flex;gap:24px;margin:14px 0 4px;align-items:center}
-.score .big{font-size:42px;font-weight:800;letter-spacing:-1px}
-.score .band{font-size:18px;color:var(--accent);font-weight:700}
-.modal-card .meta{color:var(--muted);font-size:13px}
-.modal-card .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
-
-/* Review mode marks */
-.q-mark{display:inline-block;font-size:12px;font-weight:700;padding:2px 6px;border-radius:6px;margin-left:6px;vertical-align:1px}
-.q-mark.ok{background:var(--good);color:#fff}
-.q-mark.bad{background:var(--bad);color:#fff}
-.q-mark.blank{background:var(--muted);color:#fff}
-.q-correct{font-size:12.5px;color:var(--good);margin-top:4px}
-.q-yours{font-size:12.5px;color:var(--muted);margin-top:2px}
-
-/* Toast */
-#toast{
-  position:fixed;left:50%;bottom:74px;transform:translateX(-50%);background:#000;color:#fff;
-  padding:8px 14px;border-radius:8px;font-size:13px;display:none;z-index:300;border:1px solid var(--line-2);
-}
-#toast.on{display:block}
-
-/* Confirm dialog reuses modal styling */
-.confirm .actions{justify-content:space-between}
-
-/* Helpers */
-.hide{display:none!important}
-.kbd{font-size:11px;background:var(--surface-2);border:1px solid var(--line-2);padding:1px 5px;border-radius:4px;color:var(--muted)}
-.sr{position:absolute;left:-9999px}
+:root{--navy:#1a3560;--navy-dark:#10233f;--accent:#2a6c96;--accent-hover:#245e82;--accent-soft:#bbd8f0;--bg:#fff;--surface:#fff;--surface-alt:#f5f7fa;--text:#1f2937;--muted:#667085;--border:#d7dce5;--border-light:#e4e7ec;--qnum-border:#2a6c96;--ok:#3a8a17;--ok-soft:#e6f4ea;--bad:#b42318;--bad-soft:#fdecea;--warn:#f59e0b;--hl:#FFE066;--hlb:#c8a800;--font-scale:1;--line-scale:1;--topbar-h:58px;--footer-h:60px}
+body.theme-dark{--bg:#13182a;--surface:#1b2235;--surface-alt:#222b42;--text:#e6e8ee;--muted:#a7adba;--border:#39415a;--border-light:#39415a;--accent:#6fa8d6;--accent-hover:#8abce0;--accent-soft:#1f3a59;--qnum-border:#6fa8d6;--ok:#7fce8f;--ok-soft:#1d3a26;--bad:#f0928a;--bad-soft:#3a1f1d;--hl:#6b5c10;--hlb:#8a7414}
+body.theme-sepia{--bg:#f4ece0;--surface:#faf6ef;--surface-alt:#efe7da;--text:#3c3226;--muted:#6b5e50;--border:#d8cab6;--border-light:#e2d7c5;--accent:#8b6914;--accent-hover:#75590f;--accent-soft:#efe4cb;--qnum-border:#8b6914}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}
+body{font-family:Arial,Helvetica,sans-serif;font-size:calc(16px*var(--font-scale));line-height:calc(1.5*var(--line-scale));color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+button,input,select{font-family:inherit}button{cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:2px;padding:10px 18px;font-size:14px;font-weight:700;transition:.12s}
+.btn:hover{background:var(--surface-alt)}.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}.btn.primary:hover{background:var(--navy-dark)}
+.btn.danger{color:#fff;background:var(--bad);border-color:var(--bad)}.btn.danger:hover{filter:brightness(.92)}
+.screen{display:none}.screen.active{display:block}
+#screen-test.active{height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.center{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;background:linear-gradient(180deg,#f7f9fc,#e9edf4)}
+body.theme-dark .center{background:linear-gradient(180deg,#13182a,#0d1120)}body.theme-sepia .center{background:linear-gradient(180deg,#f4ece0,#e9dcc7)}
+.card{width:100%;max-width:880px;background:var(--surface);border:1px solid var(--border);border-radius:2px;box-shadow:0 12px 24px rgba(17,24,39,.1);padding:34px}
+.brand-row{display:inline-flex;align-items:center;gap:9px;color:var(--navy);font-weight:800;margin-bottom:14px}
+.tg-dot{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:13px}
+.landing-title{font-size:34px;color:var(--navy);margin-bottom:10px;letter-spacing:-.5px}
+.landing-desc{color:var(--muted);font-size:17px;max-width:760px;margin-bottom:22px}
+.type-row{display:flex;gap:10px;margin-bottom:22px}
+.type-btn{padding:10px 22px;border:1.5px solid var(--border);border-radius:2px;font-size:14px;font-weight:700;background:var(--surface);color:var(--muted);transition:.15s}
+.type-btn.active{border-color:var(--navy);background:var(--navy);color:#fff}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}
+.info-box{background:var(--surface-alt);border:1px solid var(--border);border-radius:2px;padding:16px;text-align:center}
+.info-box strong{display:block;color:var(--navy);font-size:22px;margin-bottom:3px}
+.rules{margin:16px 0 26px;padding-left:20px}.rules li{margin:9px 0}
+.action-row{display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap}
+.topbar{height:var(--topbar-h);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--surface);border-bottom:1px solid var(--border-light);position:relative;z-index:40}
+.tb-left{display:flex;align-items:center;gap:11px}.tb-logo{font-size:21px;font-weight:900;color:var(--navy);letter-spacing:.5px}.tb-id{font-size:14px;font-weight:700;color:var(--muted)}
+.tb-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+.tg-pill{display:inline-flex;align-items:center;gap:8px;text-decoration:none;background:var(--accent);color:#fff;font-weight:800;font-size:14px;padding:8px 18px;border-radius:22px;transition:.2s;white-space:nowrap}
+.tg-pill:hover{background:var(--accent-hover);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.18)}.tg-pill svg{width:18px;height:18px;fill:#fff;flex-shrink:0}
+.tb-right{display:flex;align-items:center;gap:6px}
+.timer{font-size:16px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:.5px;padding:6px 12px;border-radius:20px;background:var(--surface-alt);border:1px solid var(--border);color:var(--text);margin-right:4px}
+.timer.warn{color:#fff;background:var(--warn);border-color:var(--warn)}.timer.danger{color:#fff;background:var(--bad);border-color:var(--bad);animation:flash 1s infinite}
+@keyframes flash{50%{opacity:.45}}
+.icon-btn{width:42px;height:42px;border:none;background:transparent;color:var(--text);border-radius:2px;display:inline-flex;align-items:center;justify-content:center;transition:.15s}
+.icon-btn:hover{background:var(--surface-alt)}.icon-btn svg{width:22px;height:22px;fill:currentColor}
+.tmain{flex:1;display:flex;overflow:hidden;min-height:0}
+.pp{flex:1;display:flex;flex-direction:column;background:var(--surface);overflow:hidden;min-width:260px}
+.pphdr{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface-alt)}
+.pptitle{font-size:13px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.5px}.ppql{font-size:12px;color:var(--muted)}
+.pbody{flex:1;overflow-y:auto;padding:24px 26px 36px;font-size:calc(15.5px*var(--font-scale));line-height:calc(1.8*var(--line-scale))}
+.pbody h2{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:18px;line-height:1.3}.pbody p{margin-bottom:14px}
+.pl{font-weight:800;color:var(--navy);margin-right:6px}
+mark.uhl{background:var(--hl);padding:0;border-radius:1px;cursor:pointer;color:inherit}
+.hl-pop{position:fixed;z-index:120;display:none;align-items:center;gap:6px;border:1px solid var(--border);border-radius:2px;background:var(--surface);box-shadow:0 8px 24px rgba(15,23,42,.2);padding:5px}
+.hl-pop.show{display:flex}
+.hl-pop button{border:none;border-radius:2px;background:var(--hl);color:#3d2c00;font-size:12px;font-weight:800;padding:7px 10px;white-space:nowrap}
+.hl-pop button.remove{background:var(--bad);color:#fff}
+.rszr{width:14px;background:var(--border-light);cursor:col-resize;flex-shrink:0;transition:background .15s;position:relative;touch-action:none}
+.rszr::before{content:'';position:absolute;top:50%;left:50%;width:4px;height:46px;border-radius:2px;background:var(--accent);opacity:.5;transform:translate(-50%,-50%)}
+.rszr:hover,.rszr.dragging{background:var(--accent-soft)}.rszr:hover::before,.rszr.dragging::before{opacity:1}
+.qp{flex:1;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;min-width:260px}
+.qphdr{padding:9px 16px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0}
+.qphdr h3{font-size:calc(13px*var(--font-scale));font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.5px}.qphdr p{font-size:calc(12px*var(--font-scale));color:var(--muted)}
+.qbody{flex:1;overflow-y:auto;padding:16px;font-size:calc(15px*var(--font-scale));line-height:calc(1.55*var(--line-scale))}
+.qgrp{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:18px;margin-bottom:14px}
+.qtbadge{display:inline-block;font-size:calc(10px*var(--font-scale));font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);background:var(--accent-soft);border-radius:1px;padding:3px 9px;margin-bottom:9px}
+.qinstr{font-size:calc(14px*var(--font-scale));line-height:calc(1.55*var(--line-scale));color:var(--text);margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border-light)}
+.qinstr strong{color:var(--navy)}.qinstr em{color:var(--muted)}
+.qi{padding:11px 0;border-bottom:1px solid var(--border-light)}.qi:last-child{border-bottom:none}
+.qrow{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.qbdg{width:24px;height:24px;min-width:24px;border:1.6px solid var(--qnum-border);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:calc(13px*var(--font-scale));font-weight:800;color:var(--text);flex-shrink:0}
+.qtxt{font-size:calc(15px*var(--font-scale));line-height:calc(1.6*var(--line-scale));color:var(--text);flex:1;padding-top:2px}
+.opts{display:flex;flex-direction:column;gap:6px;padding-left:34px}
+.olbl{display:flex;align-items:center;gap:9px;padding:8px 11px;border:1.5px solid var(--border);border-radius:2px;font-size:calc(14px*var(--font-scale));color:var(--text);background:var(--surface);transition:.12s}
+.olbl:hover{border-color:var(--accent);background:var(--surface-alt)}
+.olbl input{accent-color:var(--accent);width:15px;height:15px;flex-shrink:0}
+.olbl.sel{border-color:var(--accent);background:var(--accent-soft)}
+.olbl.good{border-color:var(--ok);background:var(--ok-soft)}.olbl.bad{border-color:var(--bad);background:var(--bad-soft)}
+.cbnote{font-size:calc(12px*var(--font-scale));color:var(--accent);font-weight:700;padding-left:34px;margin-bottom:6px}
+.ainput{display:block;width:calc(100% - 34px);margin-left:34px;padding:8px 12px;border:1.5px solid var(--border);border-radius:2px;font-size:calc(15px*var(--font-scale));outline:none;background:var(--surface);color:var(--text);transition:.12s}
+.ainput:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.ainput.good{border-color:var(--ok);background:var(--ok-soft)}.ainput.bad{border-color:var(--bad);background:var(--bad-soft)}
+.gap-input{display:inline-block;vertical-align:baseline;min-width:120px;width:clamp(110px,16vw,200px);padding:2px 6px;margin:0 4px;border:0;border-bottom:2px solid var(--accent);border-radius:0;font-size:inherit;line-height:1.25;outline:none;background:transparent;color:var(--text);text-align:center}
+.gap-input:focus{background:var(--accent-soft)}
+.gap-input.good{border-bottom-color:var(--ok);background:var(--ok-soft)}.gap-input.bad{border-bottom-color:var(--bad);background:var(--bad-soft)}
+.ahint{font-size:calc(12px*var(--font-scale));color:var(--muted);padding-left:34px;margin-top:4px}
+.hsel{display:block;width:calc(100% - 34px);margin-left:34px;padding:8px 11px;border:1.5px solid var(--border);border-radius:2px;font-size:calc(14px*var(--font-scale));background:var(--surface);color:var(--text);outline:none;transition:.12s}
+.hsel:focus{border-color:var(--accent)}
+.hsel.good{border-color:var(--ok);background:var(--ok-soft)}.hsel.bad{border-color:var(--bad);background:var(--bad-soft)}
+.hsel-inline{display:inline-block;width:auto;min-width:210px;margin:6px 0 0 0}
+.listbox{background:var(--surface-alt);border:1px solid var(--border);border-radius:2px;padding:13px;margin-bottom:14px}
+.listbox-l{font-size:calc(10px*var(--font-scale));font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px}
+.listbox-i{font-size:calc(13px*var(--font-scale));color:var(--text);padding:3px 0;line-height:calc(1.45*var(--line-scale))}.listbox-i b{color:var(--navy)}
+.ends-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;padding:8px 0;border-bottom:1px solid var(--border-light)}
+.ends-row:last-child{border-bottom:none}
+.ends-stem{flex:1;font-size:calc(15px*var(--font-scale));line-height:calc(1.5*var(--line-scale))}
+.wbank{display:flex;flex-wrap:wrap;gap:8px;padding:11px 13px;background:var(--surface-alt);border:1px solid var(--border);border-radius:2px;margin-bottom:14px}
+.wbl{width:100%;font-size:calc(10px*var(--font-scale));font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:3px}
+.wtile{padding:6px 13px;border:1.5px solid var(--accent);border-radius:2px;font-size:calc(13px*var(--font-scale));font-weight:600;color:var(--accent);background:var(--surface);transition:.12s;user-select:none;cursor:grab}
+.wtile:active{cursor:grabbing}.wtile:hover{background:var(--accent);color:#fff}.wtile.dragging{opacity:.55;background:var(--accent);color:#fff}
+.wtile.wsel{background:var(--accent);color:#fff}.wtile.wused{opacity:.3;pointer-events:none}
+.sumtxt{font-size:calc(15px*var(--font-scale));line-height:calc(2.3*var(--line-scale));color:var(--text)}
+.blank{display:inline-flex;align-items:center;justify-content:center;min-width:96px;height:28px;border:1.5px dashed var(--accent);margin:0 4px;padding:0 9px;transition:.12s;font-size:calc(14px*var(--font-scale));font-weight:700;color:var(--text);vertical-align:middle;border-radius:2px;cursor:pointer}
+.blank:hover,.blank.dragover{background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent-soft)}
+.blank.filled{border-style:solid;background:var(--accent-soft)}
+.blank .bn{font-size:11px;color:var(--muted);font-weight:700;margin-right:5px}
+.blank.good{border-color:var(--ok);background:var(--ok-soft)}.blank.bad{border-color:var(--bad);background:var(--bad-soft)}
+.corr{display:inline-block;margin-left:6px;padding:1px 7px;border:1px solid var(--ok);border-radius:2px;background:var(--ok-soft);color:var(--ok);font-size:calc(12px*var(--font-scale));font-weight:700;vertical-align:middle}
+.footer{height:var(--footer-h);flex-shrink:0;display:flex;align-items:stretch;background:var(--surface);border-top:1px solid var(--border);z-index:40}
+.parts-bar{flex:1;display:flex;align-items:stretch;overflow:hidden}
+.part-cell{display:flex;align-items:center;border-right:1px solid var(--border);background:var(--surface);transition:.12s;position:relative}
+.part-cell.collapsed{flex:1;justify-content:center;gap:7px;padding:0 14px;font-size:14px;min-width:120px;cursor:pointer}
+.part-cell.collapsed:hover{background:var(--surface-alt)}.part-cell.collapsed .pc-label{font-weight:700;color:var(--text)}.part-cell.collapsed .pc-count{color:var(--muted)}
+.part-cell.active-part{flex:none;padding:0 12px;gap:4px}
+.pc-active-label{font-weight:800;color:var(--text);padding:0 10px 0 4px;white-space:nowrap}
+.qnav{display:flex;align-items:center;gap:2px;overflow-x:auto;scrollbar-width:none;height:100%}.qnav::-webkit-scrollbar{display:none}
+.qbtn{min-width:30px;height:38px;border:1.6px solid transparent;background:transparent;color:var(--text);border-radius:2px;font-size:14px;font-weight:500;flex-shrink:0;position:relative;padding:0 7px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:5px}
+.qbtn::before{content:'';position:absolute;top:0;left:-1px;right:-1px;height:3px;background:#d7dbe2}
+.qbtn.answered::before{background:var(--ok)}.qbtn.answered{color:var(--accent)}
+.qbtn.active{border-color:var(--qnum-border);font-weight:800}.qbtn.active::before{background:var(--accent)}
+.qbtn.res-correct::before{background:var(--ok)}.qbtn.res-correct{color:var(--ok)}
+.qbtn.res-wrong::before{background:var(--bad)}.qbtn.res-wrong{color:var(--bad)}
+.footer-tools{display:flex;align-items:stretch;flex-shrink:0}
+.nav-arrow{width:54px;border:none;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;transition:.12s}
+.nav-arrow:hover{background:var(--navy-dark)}.nav-arrow:disabled{opacity:.35;cursor:not-allowed}.nav-arrow svg{width:24px;height:24px;fill:#fff}
+.check-btn{width:72px;border:none;background:var(--surface-alt);color:var(--accent);display:flex;align-items:center;justify-content:center;transition:.12s;border-left:1px solid var(--border)}
+.check-btn:hover{background:var(--accent);color:#fff}.check-btn svg{width:24px;height:24px;fill:currentColor}
+.settings{position:fixed;top:var(--topbar-h);right:0;width:min(300px,100vw);max-height:calc(100vh - var(--topbar-h));overflow-y:auto;background:var(--surface);border-left:1px solid var(--border);box-shadow:-4px 0 16px rgba(0,0,0,.1);padding:18px;z-index:60;display:none}
+.settings.open{display:block}
+.settings h3{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:16px}
+.set-group{margin-bottom:16px}.set-group label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.set-group input[type=range]{width:100%;accent-color:var(--accent)}
+.swatches{display:flex;gap:9px}.swatch{width:38px;height:38px;border-radius:2px;border:2px solid var(--border);transition:.15s}
+.swatch:hover,.swatch.active{border-color:var(--accent)}.sw-light{background:#fff}.sw-sepia{background:#f4ece0}.sw-dark{background:#13182a}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:100}
+.modal.show{display:flex}
+.modal-card{background:var(--surface);border-radius:2px;padding:28px 30px;max-width:440px;width:90%;box-shadow:0 12px 40px rgba(0,0,0,.3);text-align:center}
+.modal-card h2{color:var(--navy);margin-bottom:10px}.modal-card p{color:var(--muted);margin-bottom:22px}.modal-actions{display:flex;gap:10px;justify-content:center}
+.scroll-body{min-height:100vh;padding:80px 24px 32px;background:var(--bg);overflow-y:auto}
+.wide{max-width:1100px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:2px;box-shadow:0 10px 24px rgba(17,24,39,.08);padding:26px}
+.rev-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 22px}
+.rev-stat{background:var(--surface-alt);border:1px solid var(--border);border-radius:2px;padding:16px;text-align:center}
+.rev-stat strong{display:block;font-size:26px;margin-bottom:3px}
+.rev-stat.g strong{color:var(--ok)}.rev-stat.o strong{color:var(--warn)}.rev-stat.n strong{color:var(--navy)}
+.rev-stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.rev-sec{margin-bottom:18px}.rev-plbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px}
+.rev-grid{display:flex;flex-wrap:wrap;gap:6px}
+.rqt{width:36px;height:36px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;transition:.12s}
+.rqt.ans{background:var(--navy);border:2px solid var(--navy);color:#fff}.rqt.unans{background:var(--surface);border:2px solid #fca5a5;color:var(--bad)}
+.score-hero{display:grid;grid-template-columns:240px 1fr;gap:18px;margin-bottom:20px}
+.band-card{background:var(--navy);color:#fff;border-radius:2px;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.band-card .band{font-size:64px;font-weight:900;line-height:1}.band-card span{font-size:13px;opacity:.85;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.stat{background:var(--surface-alt);border:1px solid var(--border);border-radius:2px;padding:16px}.stat strong{display:block;font-size:22px;color:var(--navy);margin-top:3px}
+.pcards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.pcard{background:var(--surface-alt);border:1px solid var(--border);border-radius:2px;padding:16px;text-align:center}
+.pcardn{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:6px}.pcard strong{font-size:24px;color:var(--navy)}.pcard .of{font-size:13px;color:var(--muted)}
+.ans-review{display:grid;gap:8px;margin-top:14px}
+.ans-row{display:grid;grid-template-columns:54px 1fr 1fr 50px;gap:10px;align-items:center;border:1px solid var(--border);border-radius:2px;padding:10px;background:var(--surface)}
+.ans-row.correct{background:var(--ok-soft);border-color:#bbf7d0}.ans-row.wrong{background:var(--bad-soft);border-color:#fecdd3}.ans-row .muted{color:var(--muted);font-style:italic}
+.tick{font-weight:900;text-align:center;font-size:20px}.tick.g{color:var(--ok)}.tick.b{color:var(--bad)}
+@media(max-width:900px){.tmain{flex-direction:column}.pp,.qp{flex:none;height:50%}.rszr{display:none}.info-grid,.score-hero,.stats,.pcards,.rev-stats{grid-template-columns:1fr}.ans-row{grid-template-columns:1fr}.part-cell.collapsed{min-width:90px;padding:0 8px}}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 </style>
 </head>
 <body>
-
-<header id="topbar">
-  <div class="title" id="testTitle">CDI Reading 1</div>
-  <div id="timer" title="Time remaining">60:00</div>
-  <button class="tool" id="timerToggle" title="Hide/show timer">Hide</button>
-  <div class="spacer"></div>
-  <div class="seg hide-mobile" role="group" aria-label="Text size">
-    <button data-size="sm" title="Smaller">A−</button>
-    <button data-size="md" class="active" title="Default">A</button>
-    <button data-size="lg" title="Larger">A+</button>
-  </div>
-  <div class="seg hide-mobile" role="group" aria-label="Theme">
-    <button data-theme="light">Light</button>
-    <button data-theme="dark" class="active">Dark</button>
-    <button data-theme="hc">HC</button>
-  </div>
-  <button class="tool" id="clearAll" title="Clear all highlights and notes">Eraser</button>
-  <button class="tool danger" id="resetBtn">Reset</button>
-  <button class="tool primary" id="submitBtn">Submit All</button>
-</header>
-
-<nav id="parttabs" role="tablist"></nav>
-
-<main id="split">
-  <section id="passage-panel" class="hl-zone" data-zone="passage" tabindex="0"></section>
-  <div id="divider" role="separator" aria-orientation="vertical" title="Drag to resize"></div>
-  <section id="questions-panel" class="hl-zone" data-zone="questions" tabindex="0"></section>
-</main>
-
-<footer id="bottomnav">
-  <button class="tool" id="mobileSwitch">Show Questions</button>
-  <div class="palette-wrap" id="palette" aria-label="Question palette"></div>
-  <div class="navbtns">
-    <button class="tool" id="prevBtn" title="Previous question">‹ Prev</button>
-    <button class="tool" id="nextBtn" title="Next question">Next ›</button>
-  </div>
-</footer>
-
-<div id="hl-toolbar" role="toolbar" aria-label="Highlight tools">
-  <button class="cy" data-act="hl" data-color="y" title="Highlight yellow">H</button>
-  <button class="cg" data-act="hl" data-color="g" title="Highlight green">H</button>
-  <button class="cp" data-act="hl" data-color="p" title="Highlight pink">H</button>
-  <button class="note" data-act="note" title="Add note">📝</button>
-  <button class="clear" data-act="clear" title="Clear highlight">×</button>
-</div>
-
-<div id="ctxmenu" role="menu" aria-label="Context menu"></div>
-
-<div id="note-pop">
-  <textarea id="noteText" placeholder="Type a note for this selection…"></textarea>
-  <div class="row">
-    <button class="tool danger" id="noteDel">Delete note</button>
-    <div>
-      <button class="tool" id="noteCancel">Cancel</button>
-      <button class="tool primary" id="noteSave">Save</button>
+<div id="screen-landing" class="screen active"><div class="center"><div class="card">
+  <div class="brand-row"><span class="tg-dot">&#9654;</span> pangea8.com</div>
+  <h1 class="landing-title">Academic IELTS Reading Mock Test</h1>
+  <p class="landing-desc">A computer-delivered IELTS Reading platform: three passages, forty questions, answer review and band-score results.</p>
+  <div class="type-row"><button class="type-btn active" id="btn-acad" onclick="setType('academic')">Academic</button><button class="type-btn" id="btn-gen" onclick="setType('general')">General Training</button></div>
+  <button class="btn primary" onclick="goInstr()">Start Test</button>
+  <div class="info-grid"><div class="info-box"><strong>60</strong> minutes</div><div class="info-box"><strong>40</strong> questions</div><div class="info-box"><strong>3</strong> passages</div></div>
+</div></div></div>
+<div id="screen-instructions" class="screen"><div class="center"><div class="card">
+  <div class="brand-row"><span class="tg-dot">&#9654;</span> pangea8.com</div>
+  <h1 class="landing-title">Reading Test Instructions</h1>
+  <p class="landing-desc">Read carefully before you begin. The 60-minute timer starts when you click <strong>Begin Test</strong>.</p>
+  <ul class="rules">
+    <li>Read <strong>3 passages</strong> and answer <strong>40 questions</strong> in <strong>60 minutes</strong>.</li>
+    <li>The passage is on the <strong>left</strong>; questions on the <strong>right</strong>. Drag the centre divider to resize.</li>
+    <li>Select text, then click the floating <strong>Highlight</strong> button. Click a highlight to remove it.</li>
+    <li>Use the <strong>Next &rarr;</strong> arrow or a question number in the footer to move. Switch passages with the passage cells.</li>
+    <li>Spell-check is <strong>disabled</strong> on inputs, as in the real exam.</li>
+    <li>The timer turns <strong style="color:var(--warn)">orange at 10 min</strong> and <strong style="color:var(--bad)">flashes red at 5 min</strong>. Auto-submits at 0:00.</li>
+    <li>After the last question, a <strong>Review screen</strong> lets you return before final submission.</li>
+  </ul>
+  <div class="action-row"><button class="btn" onclick="showScreen('screen-landing')">Back</button><button class="btn primary" onclick="startTest()">Begin Test</button></div>
+</div></div></div>
+<div id="screen-test" class="screen">
+  <header class="topbar">
+    <div class="tb-left"><span class="tb-logo">IELTS</span><span class="tb-id" id="hdr-type">Academic Reading</span></div>
+    <div class="tb-center"></div>
+    <div class="tb-right">
+      <span class="timer" id="timer">60:00</span>
+      <button id="fsBtn" class="icon-btn" title="Fullscreen"><svg id="fsIcon" viewBox="0 0 16 16"><path id="fsPath" d="M1.5 1h4a.5.5 0 0 1 0 1H2v3.5a.5.5 0 0 1-1 0v-4a.5.5 0 0 1 .5-.5zm9 0h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V2h-3.5a.5.5 0 0 1 0-1zm-9 9a.5.5 0 0 1 .5.5V14h3.5a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5v-4a.5.5 0 0 1 .5-.5zm13 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1 0-1H14v-3.5a.5.5 0 0 1 .5-.5z"/></svg></button>
+      <button id="setToggle" class="icon-btn" title="Display settings"><svg viewBox="0 0 16 16"><path d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg></button>
     </div>
+  </header>
+  <div class="tmain">
+    <div class="pp" id="pp"><div class="pphdr"><div><div class="pptitle" id="pp-title">Passage 1</div><div class="ppql" id="pp-qr">Questions 1&ndash;13</div></div></div><div class="pbody" id="pbody"></div></div>
+    <div class="rszr" id="rszr"></div>
+    <div class="qp" id="qp"><div class="qphdr"><h3 id="qp-title">Questions 1&ndash;13</h3><p id="qp-pname">Passage 1</p></div><div class="qbody" id="qbody"></div></div>
   </div>
+  <footer class="footer">
+    <div class="parts-bar" id="partsBar"></div>
+    <div class="footer-tools">
+      <button class="nav-arrow" id="nextBtn" onclick="nextQ()"><svg viewBox="0 0 16 16"><path d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg></button>
+      <button class="check-btn" id="checkBtn" onclick="showReview()"><svg viewBox="0 0 16 16"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg></button>
+    </div>
+  </footer>
 </div>
-
-<div id="modal" role="dialog" aria-modal="true"></div>
-
-<div id="toast" role="status" aria-live="polite"></div>
-
+<div class="hl-pop" id="hlPop"><button type="button" id="hlApply">Highlight</button><button type="button" class="remove" id="hlRemove">Remove</button></div>
+<aside class="settings" id="settings">
+  <h3>Display Settings</h3>
+  <div class="set-group"><label>Font Size</label><input type="range" id="fontScale" min="0.85" max="1.3" step="0.05" value="1"></div>
+  <div class="set-group"><label>Line Spacing</label><input type="range" id="lineScale" min="1" max="1.5" step="0.05" value="1"></div>
+  <div class="set-group"><label>Background</label><div class="swatches"><button class="swatch sw-light active" data-theme="light"></button><button class="swatch sw-sepia" data-theme="sepia"></button><button class="swatch sw-dark" data-theme="dark"></button></div></div>
+  <div class="set-group"><button class="btn danger" id="resetAnswers" style="width:100%">Reset Answers</button></div>
+  <div class="set-group" style="display:flex;gap:8px"><button class="btn" id="setReset">Reset</button><button class="btn" id="setClose">Close</button></div>
+</aside>
+<div id="screen-review" class="screen"><div class="scroll-body"><div class="wide">
+  <h1 style="color:var(--navy);margin-bottom:8px">Review Your Answers</h1>
+  <p style="color:var(--muted)">Click any question number to return and change it.</p>
+  <div class="rev-stats" id="rev-stats"></div><div id="rev-passes"></div>
+  <div class="action-row" style="margin-top:8px"><button class="btn" onclick="backToTest()">Back to Test</button><button class="btn primary" onclick="showSubModal()">Submit Final Answers</button></div>
+</div></div></div>
+<div id="screen-results" class="screen"><div class="scroll-body"><div class="wide" id="resultsContent"></div></div></div>
+<div class="modal" id="modal"><div class="modal-card"><h2>Submit your answers?</h2><p id="modal-p"></p><div class="modal-actions"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="submitTest()">Submit</button></div></div></div>
 <script>
-/* ============================================================
-   TEST DATA — CDI Reading 1 (verbatim from test-1.js)
-   ============================================================ */
-const TEST_DATA = {
-  id: "cdi-reading-1",
-  title: "CDI Reading 1",
-  durationMinutes: 60,
+/* ================================================================
+   AUTHORING AREA — edit ONLY below, in this order:
+     1) PASSAGES   2) QUESTIONS   3) ANSWERS
+   ================================================================ */
 
-  passages: [
-    {
-      number: 1,
-      title: "The history of the pencil",
-      subtitle: "You should spend about 20 minutes on Questions 1–13.",
-      questionRange: "1–13",
-      paragraphs: [
-        { label: null, html: `The history of the pencil starts with a violent thunderstorm. When some particularly ferocious weather struck the Lake District in North West England in the sixteenth century, locals in the village of Borrowdale discovered a large uprooted tree. Underneath the tree lay an unknown black substance which, as we now know, was slightly shiny and smooth to the touch. And it left a black smear on the hands of all who touched it.` },
-        { label: null, html: `Initially, the local farmers used the newly discovered material as a handy way to identify their sheep. However, others quickly realised the potential for using this intriguing substance to write on paper. When it was untreated, the material was very soft, which meant that it was messy to handle. To make it fit for use with paper, people enclosed a thin core of the substance in stiff sheep hides or rope. At this time chemistry was still in its infancy. People searched for a word to describe this increasingly useful substance and came up with "plumbago," which, in Latin, means "acts or writes like lead". Later the name was changed to graphite. But because words have remarkable staying power, we still call graphite the "lead" of a pencil even though it is now known that there is no trace of real lead in graphite.` },
-        { label: null, html: `Graphite has a very high melting point, at around 3,500 degrees Celsius. This made it invaluable to the British army and navy as a secret ingredient in the manufacture of cannon balls. The Royal Ordnance, or weaponry section of the British armed forces, used graphite as a lining inside the moulds for cannon balls, as a result of which the British could turn them out faster and more cheaply than their European rivals. In addition to its value to the armed forces, the government quickly realised the commercial potential of the graphite at Borrowdale and assumed control of all the mines there during the sixteenth century. Armed guards accompanied the precious graphite all the way down to the metal foundries by the naval shipyards in the south of England. The graphite was so valuable that the locals, who called it wadd, started to steal it. As a deterrent, an act of parliament in 1752 made this offence punishable by time in prison.` },
-        { label: null, html: `The Italians originally invented the wooden casing to hold a thin rod of plumbago firmly in place for ease of writing. Italian craftsmen hollowed out two small sections of cedar wood, into one of which they laid the lead. They then glued the other section over the top and left the two halves to set. When dry, the whole apparatus formed what today we know as a pencil. The Germans took this technique and developed it further by applying mass-production techniques to pencils. At the same time Nicolas-Jacques Conte, a French officer in Napoleon Bonaparte's army during the late 1700s, developed a method of mixing powdered graphite and clay together for firing in a kiln. Adding more clay to the mixture helped make the pencil harder, sharper, and more precise in its mark. More graphite helped make a pencil mark that was softer, thicker and darker.` },
-        { label: null, html: `The varying quality of pencil leads eventually gave rise to a system for categorizing the fineness of the pencil mark. Pencil manufacturers all over the world still use this so-called HB grading system today. The H stands for the hardness of the pencil while the B stands for its blackness. An HB pencil is a standard pencil and a variety of letters and numbers are used to designate different types of lead.` },
-        { label: null, html: `Significant seams of graphite exist in parts of China, which now produces most of the world's pencils. Interestingly, the Borrowdale mine in the Lake District remains the only significant source of graphite in its near-pure form in the world. Nowadays the highest grade of graphite at Borrowdale is totally exhausted, although other grades can still be found, and England's pencil industry continues to thrive in the nearby town of Keswick.` },
-        { label: null, html: `The pencil has turned out to be a remarkably resilient and valuable tool whose use has survived well into our high-tech times, as a well-known story shows. It is sometimes said that the American space programme spent millions of dollars to invent a pen capable of writing in the zero gravity of space. The Russians, by contrast, simply equipped their astronauts with good old-fashioned pencils that never let them down. It should be pointed out though, that the popular myth about Americans overlooking the practical advantages of pencils in zero gravity is merely fiction. In actual fact, both American and Russian astronauts were equipped with pencils in their respective country's first space flights. A private company later developed pens for writing in zero gravity. In fact, astronauts of every nation now use pens. But no matter – pencils remain in use in every classroom, every planning, building and drawing office, and in every art studio in the world. And there is nothing to suggest that we are likely to invent anything better than graphite to use in our pencils.` }
-      ]
-    },
-    {
-      number: 2,
-      title: "What is an unfair advantage in sport?",
-      subtitle: "Olympic athletes increasingly depend on technology to help them win – but is that fair?",
-      questionRange: "14–26",
-      paragraphs: [
-        { label: "A", html: `What happened to the Australian athlete Ron Clarke in the 10,000 metres at the Mexico City Olympics of 1968 is now virtually forgotten, though at the time it was headline news. Clarke was the greatest distance runner in history: he'd broken more world records than anybody else. But in front of 55,000 horrified spectators, the event went disastrously wrong. In the third lap, one runner keeled over and with six laps to go, two more were carried away. Yet the race was being conducted at a relatively leisurely speed: the halfway time was the slowest since the Paris Olympics of 1924. With two laps to go, Clarke was in the leading pack. "I'd never felt better in a race," he says. But suddenly he too began to struggle, and as the frontrunners moved up a gear, a gap opened up. Clarke remembers nothing of his last lap which he ran in 90 seconds. "Normally I would run it in 64," he explains. He stumbled across the line in sixth place and collapsed. He was administered oxygen and stretchered off the track.` },
-        { label: "B", html: `Mexico City is surrounded by mountains and is over 2,240 metres above sea level. That the altitude would have an impact on the Games was predicted – Clarke had raised the issue himself, but had been told by the Australian sports authorities that complaining was regarded as bad sportsmanship. As it turned out, he had good reason to do so. Clearly, the link between athletic performance and altitude needed further investigation.` },
-        { label: "C", html: `Although there were few standout performances in distance running at the Mexico Games, they marked a turning point: the start of an astonishing record of success by East Africans. While Clarke lay crumpled in a heap, runners from Kenya and Ethiopia were celebrating their gold and silver medals. The record books confirm how entrenched this pattern has become. The names of the seven fastest men in history over 5,000 metres are Bekele, Gebrselassie, Komen, Kipchoge, Sihine, Songkok and Chereno. They are all from either Kenya or Ethiopia. Between 1997 and 2011, the 10,000 metres men's world record was smashed five times, dropping from 26:31.32 to 26:17.53. Each time, the record was broken by a Kenyan or an Ethiopian. While there is a complex mix of economic, political, social and cultural explanations for the pre-eminence of East Africans, one factor is surely that many of these athletes have lived most of their lives in thin air.` },
-        { label: "D", html: `At high altitudes, a number of physiological alterations occur. Most importantly, more red blood cells and haemoglobin are produced. This, in turn, increases the capacity of the blood to carry oxygen, which feeds the muscles and which gives an advantage to the athletes when they return to sea level. However, it is impossible to train with the same level of intensity in the mountains – aerobic capacity and cardio-respiratory function both suffer at altitude. As a result, the consensus is that the optimum approach to athletic preparation is: Live High, Train Low (LHTL). Yet that has obvious practical drawbacks. Not many people live in the mountains and those who do would prefer not to spend several hours each day driving up and down winding treacherous roads.` },
-        { label: "E", html: `That's where the altitude tent – sometimes called the hypoxic tent – comes in. Around two decades ago, two different scientists had the same exciting thought. If they could artificially control the atmosphere within a confined space, they could simulate the effects of high altitude and save an athlete at sea level from the time and expense of travelling to higher ground. Altitude tents have improved over the years: they're not as hot or as noisy as the early prototypes and are much cheaper too. They are also perfectly lawful. Five years ago when the tents were investigated by WADA (the World Anti-Doping Agency), it was ruled that they did not violate the spirit of distance running. It is now routine for athletes to sleep in them in preparation for an event.` },
-        { label: "F", html: `However, it is not the case that all new technologies gain approval. In 2008, a staggering 105 world records were broken in swimming, the vast majority achieved by competitors wearing the new Speedo LZR Racer suit. These suits use a high-tech fabric tested in NASA's wind tunnels, which reduces drag and improves buoyancy. The LZR was initially sanctioned by FINA, the international swimming body. But as better suits were produced by Speedo and other manufacturers, and more records were broken, they became increasingly controversial. In a 2009 ruling, FINA changed its mind, banning all suits made with this high-tech fabric.` },
-        { label: "G", html: `Going faster, higher, and stronger is integral to the logic of athletics in general, and the Olympics in particular. Athletes believe they need records all the time. And the only way they can achieve records is by improving the clothing, the kit, the training, the nutrition, all to identify minute changes of 0.0001 of a second. But when a new technology is invented, the relevant sports authority has to consider whether to embrace or reject it. In some cases, athletes are granted permission to use the technology; in others, it is banned. But whatever the outcome, rulings should not appear arbitrary: arguments have to be examined and weighed and the rules of logic ought to apply in every case.` }
-      ]
-    },
-    {
-      number: 3,
-      title: "Theories of planet formation questioned",
-      subtitle: "You should spend about 20 minutes on Questions 27–40.",
-      questionRange: "27–40",
-      paragraphs: [
-        { label: "A", html: `The traditional view of astronomy has been that planets form slowly as material congeals within the disk of gas, dust, and ice known to surround young stars. First, gravity gathers together bits of dust that merge to form boulder-sized bodies, which themselves coalesce into bigger and bigger objects. In about a million years, these form rocky planets like Earth and Mars. Over the next few million years, gas from the disk settles around some of these solid bodies and they grow far larger, becoming giants like gaseous Saturn and Jupiter. This theory of planet formation is known as the core-accretion model. However, several astronomers now say that this model for making planets may not be entirely correct.` },
-        { label: "B", html: `These astronomers have devised an alternative theory in which planets as massive as Jupiter, whether orbiting our sun or a distant star, would form completely within a few hundred years, rather than the millions as previously believed. Both models for planet formation start with the same reservoir of planet-making materials. The spinning cloud of gas, dust and ice rapidly flattens into a disk. Over time, gravity causes material in this so-called protoplanetary disk to clump into planet-size objects. However, it is the speed of the clustering, and the size of the initial clumps, that provide the disparity in the two models.` },
-        { label: "C", html: `According to the core-accretion model, making Jupiter required the initial formation of a solid core five to ten times Earth's mass. It would have taken about a million years to achieve this. This large core then had enough gravity to attract a huge amount of gas from the proto-planetary disk to create a planet of the massive proportions of Jupiter. In this core-accretion model, these gas giants may take as long as ten million years to form.` },
-        { label: "D", html: `That is several million years too long in the opinion of Lucio Mayer of Zurich University. Direct telescope observations suggest that the proto-planetary disks do not last more than about seven million years, and studies of the environment in which stars form suggest that many disks may evaporate in much less time. The typical star in the Milky Way is born into a tough neighborhood, Mayer says. Most stars form in dense clouds of gas, dust and ice. They are extremely hot, and the ultraviolet light they send into space can evaporate a protoplanetary disk in less than 100,000 years. In the core-accretion model, that is not enough time for a Jupiter-like planet to form.` },
-        { label: "E", html: `Recent computer simulations show that when individual stars form, the gravitational pull between them can result in the outer gaseous parts of the proto-planetary disks being destroyed in 100,000 years or less. "If a gas giant planet can't form quickly, it probably can't form at all," concludes Thomas Quinn of the University of Washington in Seattle. He also asserts that if the core-accretion model is correct, gas giant planets like Jupiter should be rare. However, since 1995, astronomers have found more than one hundred planets as large as Jupiter outside our solar system.` },
-        { label: "F", html: `Quinn and his colleagues recently analysed the standard core-accretion model of planet formation and investigated whether or not giant planets could form quickly. They looked at the work of Gerard Kuiper who, in the 1950s, proposed that they could. Alan P. Boss of the Carnegie Institute did more extensive work on the subject in the late 1980s. Using computer simulations, Boss was surprised to find that gravity could cause a proto-planetary disk to break into clumps as big as a modest-size planet after just a few orbits of its parent star. The clumps would be so massive that they would continue to pull in gas, ice and dust. This is called the gravitational-instability model of planet formation.` },
-        { label: "G", html: `Recent calculations by other scientists have suggested that many of the solid bodies that might serve as the rocky core for Jupiter-size planets in the traditional theory would spiral into the parent star before the massive planet could form. Further analysis has shown that other effects could also cause a proto-planetary disk to become unstable and split into large fragments. For instance, within the disk, electrically charged material might accumulate, leading to fragmentation of the disk. Or a powerful gravitational disturbance, such the pull of a star passing nearby, could produce instability in the proto-planetary disk.` },
-        { label: "H", html: `Nevertheless, the gravitational-instability model has problems of its own, as it is mathematically complicated and requires sophisticated computer use. Therefore, no one has studied the simulations long enough to establish conclusively that the model allows for the formation of massive planets.` },
-        { label: "I", html: `In response, Mayer says that he and his team have described the results of an extensive simulation based on the gravitational-instability model. They spent two years refining calculations to track what would happen to a proto-planetary disk over one thousand years, which is more than any other simulation had done. Mayer and his colleagues had previously devoted a decade to state-of-the-art simulations of the formation and evolution of galaxies. For that reason, "we had already developed a fast code that can run in parallel on machines with hundreds of processors," says Mayer. "It was almost natural to think of applying our tools and experience in numerical simulations to such a fundamental problem like planet formation." This knowledge assisted them in investigating their gravitational-instability theory.` }
-      ]
-    }
-  ],
 
-  groups: [
-    {
-      type: "note_completion",
-      range: "1–6",
-      passage: 1,
-      instructions: "Complete the notes below. Choose ONE WORD ONLY from the passage for each answer.",
-      constraint: "ONE WORD ONLY",
-      heading: "The early history of graphite in Britain",
-      lines: [
-        { id: 1, before: "Graphite was first found below a", after: "blown down in a storm.", answer: ["tree"] },
-        { id: 2, before: "The first use of graphite was to make marks on", after: "", answer: ["sheep"] },
-        "The characteristics of raw graphite:",
-        { id: 3, before: "– dirty to use because it is so", after: "", answer: ["soft"] },
-        { id: 4, before: "– originally wrapped in", after: "or animal skin to make it useable as a pencil.", answer: ["rope"] },
-        "Graphite came to the notice of the government for military and commercial purposes:",
-        { id: 5, before: "– the government completely took over the", after: "at Borrowdale.", answer: ["mines"] },
-        "– they employed guards to protect the graphite on its journey south.",
-        { id: 6, before: "Local people began to", after: "graphite for the money involved.", answer: ["steal"] },
-        "– the government passed a law to protect the graphite industry."
-      ]
-    },
-    {
-      type: "tfng",
-      range: "7–13",
-      passage: 1,
-      instructions: "Do the following statements agree with the information given in Reading Passage 1? Write TRUE if the statement agrees with the information, FALSE if it contradicts the information, or NOT GIVEN if there is no information on this.",
-      options: ["TRUE", "FALSE", "NOT GIVEN"],
-      items: [
-        { id: 7, text: "The Italians were the first to make pencils out of wood.", answer: "TRUE" },
-        { id: 8, text: "The Germans used different types of wood to produce pencils.", answer: "NOT GIVEN" },
-        { id: 9, text: "More clay in a pencil makes it write more darkly.", answer: "FALSE" },
-        { id: 10, text: "After the HB code was introduced, it very quickly became used by all manufacturers.", answer: "NOT GIVEN" },
-        { id: 11, text: "English pencil factories have now all closed down.", answer: "FALSE" },
-        { id: 12, text: "American astronauts used pencils on their early journeys into space.", answer: "TRUE" },
-        { id: 13, text: "The use of graphite pencils is unlikely to continue into the future.", answer: "FALSE" }
-      ]
-    },
-    {
-      type: "matching_headings",
-      range: "14–20",
-      passage: 2,
-      instructions: "Reading Passage 2 has seven paragraphs, A–G. Choose the correct heading for each paragraph from the list of headings below.",
-      headingList: [
-        { label: "i", text: "Early research into athletes' physiology" },
-        { label: "ii", text: "A convenient method of acclimatization" },
-        { label: "iii", text: "The need for a rational approach" },
-        { label: "iv", text: "Changes in the body" },
-        { label: "v", text: "The athletes who break the rules" },
-        { label: "vi", text: "Well-founded concerns" },
-        { label: "vii", text: "The surprising outcome of a race" },
-        { label: "viii", text: "The reversal of a decision" },
-        { label: "ix", text: "The runners who dominate" }
-      ],
-      items: [
-        { id: 14, text: "Paragraph A", answer: "vii" },
-        { id: 15, text: "Paragraph B", answer: "vi" },
-        { id: 16, text: "Paragraph C", answer: "ix" },
-        { id: 17, text: "Paragraph D", answer: "iv" },
-        { id: 18, text: "Paragraph E", answer: "ii" },
-        { id: 19, text: "Paragraph F", answer: "viii" },
-        { id: 20, text: "Paragraph G", answer: "iii" }
-      ]
-    },
-    {
-      type: "mcq_multi",
-      range: "21–22",
-      passage: 2,
-      ids: [21, 22],
-      selectCount: 2,
-      instructions: "Choose TWO letters, A–E.",
-      stem: "Which TWO of the following statements about Ron Clarke are made in the passage?",
-      options: [
-        { label: "A", text: "Clarke was not performing well immediately prior to the Mexico Games." },
-        { label: "B", text: "The worries Clarke had before the Mexico Games were not taken into account." },
-        { label: "C", text: "Clarke's experiences at the Mexico Games are widely talked about today." },
-        { label: "D", text: "At one stage of the Mexico Games 10,000 metres, Clarke was near the front." },
-        { label: "E", text: "Clarke was the only runner at the Mexico Games who appeared to be affected by the altitude." }
-      ],
-      answer: ["B", "D"]
-    },
-    {
-      type: "summary_completion",
-      range: "23–26",
-      passage: 2,
-      instructions: "Complete the summary below. Choose ONE WORD from the passage for each answer.",
-      constraint: "ONE WORD",
-      heading: "Do all new technologies gain approval?",
-      segments: [
-        { text: "Some people may be puzzled by attitudes towards performance-enhancing technologies in sports. For example, why is the altitude tent considered acceptable, but not the LZR Racer suit? For distance running, WADA concluded that the altitude tent was not contrary to the " },
-        { gap: 23, answer: ["spirit"] },
-        { text: " of the sport. However, the LZR swimsuit, which is made from a special fabric that aids buoyancy and cuts down " },
-        { gap: 24, answer: ["drag"] },
-        { text: " was banned. Athletes think they have to continually set fresh " },
-        { gap: 25, answer: ["records"] },
-        { text: ". This is made possible by better " },
-        { gap: 26, answer: ["nutrition"] },
-        { text: " and training, as well as improved clothing and equipment. However, when sports authorities have to decide whether to give permission for a new performance-enhancing technology to be used, it is important that their decisions are not seen as arbitrary." }
-      ]
-    },
-    {
-      type: "matching_features",
-      subtype: "paragraph",
-      range: "27–32",
-      passage: 3,
-      instructions: "Reading Passage 3 has nine paragraphs, A–I. Which paragraph contains the following information?",
-      mayReuse: false,
-      featureList: [
-        { label: "A", text: "A" }, { label: "B", text: "B" }, { label: "C", text: "C" },
-        { label: "D", text: "D" }, { label: "E", text: "E" }, { label: "F", text: "F" },
-        { label: "G", text: "G" }, { label: "H", text: "H" }, { label: "I", text: "I" }
-      ],
-      items: [
-        { id: 27, text: "the significance of recent discoveries of a large number of massive planets", answer: "E" },
-        { id: 28, text: "an explanation of the difference between the theories of planet creation", answer: "B" },
-        { id: 29, text: "the difficulties of proving that the more recent theory of planet creation is correct", answer: "H" },
-        { id: 30, text: "reasons why Mayer claims he was able to develop his theory", answer: "I" },
-        { id: 31, text: "a detailed explanation of the long-held theory of planet creation", answer: "A" },
-        { id: 32, text: "description of the destructive effect of heat in space", answer: "D" }
-      ]
-    },
-    {
-      type: "sentence_endings",
-      range: "33–37",
-      passage: 3,
-      instructions: "Complete each sentence with the correct ending, A–G, below.",
-      endingList: [
-        { label: "A", text: "gaseous planets form before smaller rocky planets." },
-        { label: "B", text: "large planets take millions of years to form." },
-        { label: "C", text: "large planets must form fast or not at all." },
-        { label: "D", text: "large planets had the potential to develop relatively fast." },
-        { label: "E", text: "gravity could cause planet-sized pieces to break off quickly." },
-        { label: "F", text: "hot clumps of gas, dust and ice were destroyed relatively quickly." },
-        { label: "G", text: "computer studies of planets are too mathematically complex." }
-      ],
-      items: [
-        { id: 33, stem: "Traditionally astronomers have believed that", answer: "B" },
-        { id: 34, stem: "Lucio Mayer physically observed that", answer: "F" },
-        { id: 35, stem: "Thomas Quinn believes that", answer: "C" },
-        { id: 36, stem: "Gerard Kuiper was the first to suggest that", answer: "D" },
-        { id: 37, stem: "Alan P. Boss discovered that", answer: "E" }
-      ]
-    },
-    {
-      type: "summary_wordlist",
-      range: "38–40",
-      passage: 3,
-      instructions: "Complete the summary using the list of words, A–F, below.",
-      wordList: [
-        { label: "A", text: "gravitational pull" },
-        { label: "B", text: "ice" },
-        { label: "C", text: "solid core" },
-        { label: "D", text: "ultraviolet light" },
-        { label: "E", text: "Milky Way" },
-        { label: "F", text: "disk" }
-      ],
-      segments: [
-        { heading: "The core-accretion model" },
-        { text: "A hard centre becomes larger and this produces enough gravity to draw gas from the " },
-        { gap: 38, answer: "F" },
-        { text: " around it." },
-        { heading: "The gravitational-instability model" },
-        { text: "Stars can break up the outer gaseous parts which surround objects in the sky because the attraction of the " },
-        { gap: 39, answer: "A" },
-        { text: " from stars is very powerful. Heat caused by " },
-        { gap: 40, answer: "D" },
-        { text: " can also destroy the material surrounding the objects in a relatively short time. Planet-sized segments may split away from the main body following several orbits of the parent star." }
-      ]
-    }
-  ]
+/* ---------- 1) PASSAGES ---------- */
+const PASSAGES = {
+1:{title:"The history of the pencil",qr:"Questions 1–13",html:`
+  <h2>The history of the pencil</h2>
+  <p>The history of the pencil starts with a violent thunderstorm. When some particularly ferocious weather struck the Lake District in North West England in the sixteenth century, locals in the village of Borrowdale discovered a large uprooted tree. Underneath the tree lay an unknown black substance which, as we now know, was slightly shiny and smooth to the touch. And it left a black smear on the hands of all who touched it.</p>
+  <p>Initially, the local farmers used the newly discovered material as a handy way to identify their sheep. However, others quickly realised the potential for using this intriguing substance to write on paper. When it was untreated, the material was very soft, which meant that it was messy to handle. To make it fit for use with paper, people enclosed a thin core of the substance in stiff sheep hides or rope. At this time chemistry was still in its infancy. People searched for a word to describe this increasingly useful substance and came up with "plumbago," which, in Latin, means "acts or writes like lead". Later the name was changed to graphite. But because words have remarkable staying power, we still call graphite the "lead" of a pencil even though it is now known that there is no trace of real lead in graphite.</p>
+  <p>Graphite has a very high melting point, at around 3,500 degrees Celsius. This made it invaluable to the British army and navy as a secret ingredient in the manufacture of cannon balls. The Royal Ordnance, or weaponry section of the British armed forces, used graphite as a lining inside the moulds for cannon balls, as a result of which the British could turn them out faster and more cheaply than their European rivals. In addition to its value to the armed forces, the government quickly realised the commercial potential of the graphite at Borrowdale and assumed control of all the mines there during the sixteenth century. Armed guards accompanied the precious graphite all the way down to the metal foundries by the naval shipyards in the south of England. The graphite was so valuable that the locals, who called it wadd, started to steal it. As a deterrent, an act of parliament in 1752 made this offence punishable by time in prison.</p>
+  <p>The Italians originally invented the wooden casing to hold a thin rod of plumbago firmly in place for ease of writing. Italian craftsmen hollowed out two small sections of cedar wood, into one of which they laid the lead. They then glued the other section over the top and left the two halves to set. When dry, the whole apparatus formed what today we know as a pencil. The Germans took this technique and developed it further by applying mass-production techniques to pencils. At the same time Nicolas-Jacques Conte, a French officer in Napoleon Bonaparte's army during the late 1700s, developed a method of mixing powdered graphite and clay together for firing in a kiln. Adding more clay to the mixture helped make the pencil harder, sharper, and more precise in its mark. More graphite helped make a pencil mark that was softer, thicker and darker.</p>
+  <p>The varying quality of pencil leads eventually gave rise to a system for categorizing the fineness of the pencil mark. Pencil manufacturers all over the world still use this so-called HB grading system today. The H stands for the hardness of the pencil while the B stands for its blackness. An HB pencil is a standard pencil and a variety of letters and numbers are used to designate different types of lead.</p>
+  <p>Significant seams of graphite exist in parts of China, which now produces most of the world's pencils. Interestingly, the Borrowdale mine in the Lake District remains the only significant source of graphite in its near-pure form in the world. Nowadays the highest grade of graphite at Borrowdale is totally exhausted, although other grades can still be found, and England's pencil industry continues to thrive in the nearby town of Keswick.</p>
+  <p>The pencil has turned out to be a remarkably resilient and valuable tool whose use has survived well into our high-tech times, as a well-known story shows. It is sometimes said that the American space programme spent millions of dollars to invent a pen capable of writing in the zero gravity of space. The Russians, by contrast, simply equipped their astronauts with good old-fashioned pencils that never let them down. It should be pointed out though, that the popular myth about Americans overlooking the practical advantages of pencils in zero gravity is merely fiction. In actual fact, both American and Russian astronauts were equipped with pencils in their respective country's first space flights. A private company later developed pens for writing in zero gravity. In fact, astronauts of every nation now use pens. But no matter – pencils remain in use in every classroom, every planning, building and drawing office, and in every art studio in the world. And there is nothing to suggest that we are likely to invent anything better than graphite to use in our pencils.</p>`},
+
+2:{title:"What is an unfair advantage in sport?",qr:"Questions 14–26",html:`
+  <h2>What is an unfair advantage in sport?</h2>
+  <p><em>Olympic athletes increasingly depend on technology to help them win – but is that fair?</em></p>
+  <p><span class="pl">A</span>What happened to the Australian athlete Ron Clarke in the 10,000 metres at the Mexico City Olympics of 1968 is now virtually forgotten, though at the time it was headline news. Clarke was the greatest distance runner in history: he'd broken more world records than anybody else. But in front of 55,000 horrified spectators, the event went disastrously wrong. In the third lap, one runner keeled over and with six laps to go, two more were carried away. Yet the race was being conducted at a relatively leisurely speed: the halfway time was the slowest since the Paris Olympics of 1924. With two laps to go, Clarke was in the leading pack. "I'd never felt better in a race," he says. But suddenly he too began to struggle, and as the frontrunners moved up a gear, a gap opened up. Clarke remembers nothing of his last lap which he ran in 90 seconds. "Normally I would run it in 64," he explains. He stumbled across the line in sixth place and collapsed. He was administered oxygen and stretchered off the track.</p>
+  <p><span class="pl">B</span>Mexico City is surrounded by mountains and is over 2,240 metres above sea level. That the altitude would have an impact on the Games was predicted – Clarke had raised the issue himself, but had been told by the Australian sports authorities that complaining was regarded as bad sportsmanship. As it turned out, he had good reason to do so. Clearly, the link between athletic performance and altitude needed further investigation.</p>
+  <p><span class="pl">C</span>Although there were few standout performances in distance running at the Mexico Games, they marked a turning point: the start of an astonishing record of success by East Africans. While Clarke lay crumpled in a heap, runners from Kenya and Ethiopia were celebrating their gold and silver medals. The record books confirm how entrenched this pattern has become. The names of the seven fastest men in history over 5,000 metres are Bekele, Gebrselassie, Komen, Kipchoge, Sihine, Songkok and Chereno. They are all from either Kenya or Ethiopia. Between 1997 and 2011, the 10,000 metres men's world record was smashed five times, dropping from 26:31.32 to 26:17.53. Each time, the record was broken by a Kenyan or an Ethiopian. While there is a complex mix of economic, political, social and cultural explanations for the pre-eminence of East Africans, one factor is surely that many of these athletes have lived most of their lives in thin air.</p>
+  <p><span class="pl">D</span>At high altitudes, a number of physiological alterations occur. Most importantly, more red blood cells and haemoglobin are produced. This, in turn, increases the capacity of the blood to carry oxygen, which feeds the muscles and which gives an advantage to the athletes when they return to sea level. However, it is impossible to train with the same level of intensity in the mountains – aerobic capacity and cardio-respiratory function both suffer at altitude. As a result, the consensus is that the optimum approach to athletic preparation is: Live High, Train Low (LHTL). Yet that has obvious practical drawbacks. Not many people live in the mountains and those who do would prefer not to spend several hours each day driving up and down winding treacherous roads.</p>
+  <p><span class="pl">E</span>That's where the altitude tent – sometimes called the hypoxic tent – comes in. Around two decades ago, two different scientists had the same exciting thought. If they could artificially control the atmosphere within a confined space, they could simulate the effects of high altitude and save an athlete at sea level from the time and expense of travelling to higher ground. Altitude tents have improved over the years: they're not as hot or as noisy as the early prototypes and are much cheaper too. They are also perfectly lawful. Five years ago when the tents were investigated by WADA (the World Anti-Doping Agency), it was ruled that they did not violate the spirit of distance running. It is now routine for athletes to sleep in them in preparation for an event.</p>
+  <p><span class="pl">F</span>However, it is not the case that all new technologies gain approval. In 2008, a staggering 105 world records were broken in swimming, the vast majority achieved by competitors wearing the new Speedo LZR Racer suit. These suits use a high-tech fabric tested in NASA's wind tunnels, which reduces drag and improves buoyancy. The LZR was initially sanctioned by FINA, the international swimming body. But as better suits were produced by Speedo and other manufacturers, and more records were broken, they became increasingly controversial. In a 2009 ruling, FINA changed its mind, banning all suits made with this high-tech fabric.</p>
+  <p><span class="pl">G</span>Going faster, higher, and stronger is integral to the logic of athletics in general, and the Olympics in particular. Athletes believe they need records all the time. And the only way they can achieve records is by improving the clothing, the kit, the training, the nutrition, all to identify minute changes of 0.0001 of a second. But when a new technology is invented, the relevant sports authority has to consider whether to embrace or reject it. In some cases, athletes are granted permission to use the technology; in others, it is banned. But whatever the outcome, rulings should not appear arbitrary: arguments have to be examined and weighed and the rules of logic ought to apply in every case.</p>`},
+
+3:{title:"Theories of planet formation questioned",qr:"Questions 27–40",html:`
+  <h2>Theories of planet formation questioned</h2>
+  <p><span class="pl">A</span>The traditional view of astronomy has been that planets form slowly as material congeals within the disk of gas, dust, and ice known to surround young stars. First, gravity gathers together bits of dust that merge to form boulder-sized bodies, which themselves coalesce into bigger and bigger objects. In about a million years, these form rocky planets like Earth and Mars. Over the next few million years, gas from the disk settles around some of these solid bodies and they grow far larger, becoming giants like gaseous Saturn and Jupiter. This theory of planet formation is known as the core-accretion model. However, several astronomers now say that this model for making planets may not be entirely correct.</p>
+  <p><span class="pl">B</span>These astronomers have devised an alternative theory in which planets as massive as Jupiter, whether orbiting our sun or a distant star, would form completely within a few hundred years, rather than the millions as previously believed. Both models for planet formation start with the same reservoir of planet-making materials. The spinning cloud of gas, dust and ice rapidly flattens into a disk. Over time, gravity causes material in this so-called protoplanetary disk to clump into planet-size objects. However, it is the speed of the clustering, and the size of the initial clumps, that provide the disparity in the two models.</p>
+  <p><span class="pl">C</span>According to the core-accretion model, making Jupiter required the initial formation of a solid core five to ten times Earth's mass. It would have taken about a million years to achieve this. This large core then had enough gravity to attract a huge amount of gas from the proto-planetary disk to create a planet of the massive proportions of Jupiter. In this core-accretion model, these gas giants may take as long as ten million years to form.</p>
+  <p><span class="pl">D</span>That is several million years too long in the opinion of Lucio Mayer of Zurich University. Direct telescope observations suggest that the proto-planetary disks do not last more than about seven million years, and studies of the environment in which stars form suggest that many disks may evaporate in much less time. The typical star in the Milky Way is born into a tough neighborhood, Mayer says. Most stars form in dense clouds of gas, dust and ice. They are extremely hot, and the ultraviolet light they send into space can evaporate a protoplanetary disk in less than 100,000 years. In the core-accretion model, that is not enough time for a Jupiter-like planet to form.</p>
+  <p><span class="pl">E</span>Recent computer simulations show that when individual stars form, the gravitational pull between them can result in the outer gaseous parts of the proto-planetary disks being destroyed in 100,000 years or less. "If a gas giant planet can't form quickly, it probably can't form at all," concludes Thomas Quinn of the University of Washington in Seattle. He also asserts that if the core-accretion model is correct, gas giant planets like Jupiter should be rare. However, since 1995, astronomers have found more than one hundred planets as large as Jupiter outside our solar system.</p>
+  <p><span class="pl">F</span>Quinn and his colleagues recently analysed the standard core-accretion model of planet formation and investigated whether or not giant planets could form quickly. They looked at the work of Gerard Kuiper who, in the 1950s, proposed that they could. Alan P. Boss of the Carnegie Institute did more extensive work on the subject in the late 1980s. Using computer simulations, Boss was surprised to find that gravity could cause a proto-planetary disk to break into clumps as big as a modest-size planet after just a few orbits of its parent star. The clumps would be so massive that they would continue to pull in gas, ice and dust. This is called the gravitational-instability model of planet formation.</p>
+  <p><span class="pl">G</span>Recent calculations by other scientists have suggested that many of the solid bodies that might serve as the rocky core for Jupiter-size planets in the traditional theory would spiral into the parent star before the massive planet could form. Further analysis has shown that other effects could also cause a proto-planetary disk to become unstable and split into large fragments. For instance, within the disk, electrically charged material might accumulate, leading to fragmentation of the disk. Or a powerful gravitational disturbance, such the pull of a star passing nearby, could produce instability in the proto-planetary disk.</p>
+  <p><span class="pl">H</span>Nevertheless, the gravitational-instability model has problems of its own, as it is mathematically complicated and requires sophisticated computer use. Therefore, no one has studied the simulations long enough to establish conclusively that the model allows for the formation of massive planets.</p>
+  <p><span class="pl">I</span>In response, Mayer says that he and his team have described the results of an extensive simulation based on the gravitational-instability model. They spent two years refining calculations to track what would happen to a proto-planetary disk over one thousand years, which is more than any other simulation had done. Mayer and his colleagues had previously devoted a decade to state-of-the-art simulations of the formation and evolution of galaxies. For that reason, "we had already developed a fast code that can run in parallel on machines with hundreds of processors," says Mayer. "It was almost natural to think of applying our tools and experience in numerical simulations to such a fundamental problem like planet formation." This knowledge assisted them in investigating their gravitational-instability theory.</p>`}
 };
 
-/* ============================================================
-   ENGINE
-   ============================================================ */
-(function(){
-'use strict';
+/* ---------- 2) QUESTIONS ---------- */
+const GROUPS = {
+  g1:{type:"Note Completion",instr:"Complete the notes below. Choose <strong>ONE WORD ONLY</strong> from the passage for each answer."},
+  g2:{type:"True / False / Not Given",instr:"Do the following statements agree with the information in Reading Passage 1? Write <strong>TRUE</strong>, <strong>FALSE</strong> or <strong>NOT GIVEN</strong>."},
+  g3:{type:"Matching Headings",instr:"Reading Passage 2 has seven paragraphs, <strong>A–G</strong>. Choose the correct heading for each paragraph from the list of headings below."},
+  g4:{type:"Multiple Choice — Choose TWO",instr:"Which <strong>TWO</strong> of the following statements about Ron Clarke are made in the passage? Choose <strong>TWO</strong> letters, <strong>A–E</strong>."},
+  g5:{type:"Summary Completion",instr:"Complete the summary below. Choose <strong>ONE WORD</strong> from the passage for each answer."},
+  g6:{type:"Matching Information",instr:"Reading Passage 3 has nine paragraphs, <strong>A–I</strong>. Which paragraph contains the following information? Write the correct letter, <strong>A–I</strong>."},
+  g7:{type:"Matching Sentence Endings",instr:"Complete each sentence with the correct ending, <strong>A–G</strong>, below."},
+  g8:{type:"Summary Completion",instr:"Complete the summary using the list of words, <strong>A–F</strong>, below."}
+};
 
-const LSKEY = "cdi-state::" + TEST_DATA.id;
-const HLKEY = "cdi-highlights::" + TEST_DATA.id;
-const UIKEY = "cdi-ui::" + TEST_DATA.id;
+const HEADINGS = [
+  {n:'i',t:"Early research into athletes' physiology"},
+  {n:'ii',t:"A convenient method of acclimatization"},
+  {n:'iii',t:"The need for a rational approach"},
+  {n:'iv',t:"Changes in the body"},
+  {n:'v',t:"The athletes who break the rules"},
+  {n:'vi',t:"Well-founded concerns"},
+  {n:'vii',t:"The surprising outcome of a race"},
+  {n:'viii',t:"The reversal of a decision"},
+  {n:'ix',t:"The runners who dominate"}
+];
 
-const $ = (s, r=document) => r.querySelector(s);
-const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const ENDINGS = [
+  {n:'A',t:"gaseous planets form before smaller rocky planets."},
+  {n:'B',t:"large planets take millions of years to form."},
+  {n:'C',t:"large planets must form fast or not at all."},
+  {n:'D',t:"large planets had the potential to develop relatively fast."},
+  {n:'E',t:"gravity could cause planet-sized pieces to break off quickly."},
+  {n:'F',t:"hot clumps of gas, dust and ice were destroyed relatively quickly."},
+  {n:'G',t:"computer studies of planets are too mathematically complex."}
+];
 
-/* --- state --- */
-const state = loadState();
-const ui = loadUI();
+const QUESTIONS = [
+  {id:1,p:1,g:'g1',type:'gap',text:"Graphite was first found below a ___ blown down in a storm."},
+  {id:2,p:1,g:'g1',type:'gap',text:"The first use of graphite was to make marks on ___."},
+  {id:3,p:1,g:'g1',type:'gap',text:"Raw graphite is dirty to use because it is so ___."},
+  {id:4,p:1,g:'g1',type:'gap',text:"Raw graphite was originally wrapped in ___ or animal skin to make it useable as a pencil."},
+  {id:5,p:1,g:'g1',type:'gap',text:"The government completely took over the ___ at Borrowdale."},
+  {id:6,p:1,g:'g1',type:'gap',text:"Local people began to ___ graphite for the money involved."},
 
-function loadState(){
-  try{
-    const s = JSON.parse(localStorage.getItem(LSKEY) || "{}");
-    return Object.assign({
-      answers: {},     // qid -> string (or array for mcq_multi via group key)
-      mcqMulti: {},    // groupRange -> [letters]
-      reviewFlags: {}, // qid -> true
-      remaining: TEST_DATA.durationMinutes * 60,
-      submitted: false,
-      currentPart: 0,
-      currentQid: 1
-    }, s);
-  }catch(e){ return defaultState(); }
-}
-function defaultState(){
-  return {answers:{}, mcqMulti:{}, reviewFlags:{}, remaining:TEST_DATA.durationMinutes*60, submitted:false, currentPart:0, currentQid:1};
-}
-function saveState(){ try{ localStorage.setItem(LSKEY, JSON.stringify(state)); }catch(e){} }
+  {id:7,p:1,g:'g2',type:'tfng',text:"The Italians were the first to make pencils out of wood."},
+  {id:8,p:1,g:'g2',type:'tfng',text:"The Germans used different types of wood to produce pencils."},
+  {id:9,p:1,g:'g2',type:'tfng',text:"More clay in a pencil makes it write more darkly."},
+  {id:10,p:1,g:'g2',type:'tfng',text:"After the HB code was introduced, it very quickly became used by all manufacturers."},
+  {id:11,p:1,g:'g2',type:'tfng',text:"English pencil factories have now all closed down."},
+  {id:12,p:1,g:'g2',type:'tfng',text:"American astronauts used pencils on their early journeys into space."},
+  {id:13,p:1,g:'g2',type:'tfng',text:"The use of graphite pencils is unlikely to continue into the future."},
 
-function loadUI(){
-  try{
-    return Object.assign({theme:"dark",size:"md",timerHidden:false,dividerPct:50}, JSON.parse(localStorage.getItem(UIKEY)||"{}"));
-  }catch(e){ return {theme:"dark",size:"md",timerHidden:false,dividerPct:50}; }
-}
-function saveUI(){ try{ localStorage.setItem(UIKEY, JSON.stringify(ui)); }catch(e){} }
+  {id:14,p:2,g:'g3',type:'heads',text:"Paragraph A"},
+  {id:15,p:2,g:'g3',type:'heads',text:"Paragraph B"},
+  {id:16,p:2,g:'g3',type:'heads',text:"Paragraph C"},
+  {id:17,p:2,g:'g3',type:'heads',text:"Paragraph D"},
+  {id:18,p:2,g:'g3',type:'heads',text:"Paragraph E"},
+  {id:19,p:2,g:'g3',type:'heads',text:"Paragraph F"},
+  {id:20,p:2,g:'g3',type:'heads',text:"Paragraph G"},
 
-/* --- question index utilities --- */
-function allItems(){
-  const out = [];
-  for(const g of TEST_DATA.groups){
-    if(g.type === "mcq_multi"){
-      out.push({id: g.ids[0], group:g, kind:"mcq_multi_anchor"});
-      // ids[1..] are filled together but we still want them in palette
-      for(let i=1;i<g.ids.length;i++) out.push({id:g.ids[i], group:g, kind:"mcq_multi_slot"});
-    } else if(g.type === "note_completion" || g.type === "table_completion" || g.type === "flowchart_completion"){
-      for(const ln of g.lines){
-        if(typeof ln === "object" && ln.id) out.push({id:ln.id, group:g, kind:"gap"});
-      }
-    } else if(g.type === "summary_completion" || g.type === "summary_wordlist"){
-      for(const s of g.segments){ if(s && s.gap) out.push({id:s.gap, group:g, kind:"gap"}); }
-    } else if(g.items){
-      for(const it of g.items) out.push({id:it.id, group:g, kind:g.type, item:it});
-    }
-  }
-  return out.sort((a,b)=>a.id-b.id);
-}
-const ITEMS = allItems();
-function itemForId(id){ return ITEMS.find(x=>x.id===id); }
-function partForQid(qid){
-  const g = itemForId(qid)?.group;
-  if(!g) return 0;
-  return (g.passage||1) - 1;
-}
+  {id:21,p:2,g:'g4',type:'multi',from:21,to:22,pick:2,prompt:"Which TWO of the following statements about Ron Clarke are made in the passage?",opts:["A) Clarke was not performing well immediately prior to the Mexico Games.","B) The worries Clarke had before the Mexico Games were not taken into account.","C) Clarke's experiences at the Mexico Games are widely talked about today.","D) At one stage of the Mexico Games 10,000 metres, Clarke was near the front.","E) Clarke was the only runner at the Mexico Games who appeared to be affected by the altitude."]},
+  {id:22,p:2,g:'g4',type:'multi-child',from:21,to:22},
 
-/* ============================================================
-   RENDER — header / part tabs
-   ============================================================ */
-function applyUI(){
-  document.documentElement.setAttribute("data-theme", ui.theme);
-  document.documentElement.setAttribute("data-fontsize", ui.size);
-  $$("#topbar [data-theme]").forEach(b=> b.classList.toggle("active", b.dataset.theme===ui.theme));
-  $$("#topbar [data-size]").forEach(b=> b.classList.toggle("active", b.dataset.size===ui.size));
-  $("#timer").classList.toggle("hidden", !!ui.timerHidden);
-  $("#timerToggle").textContent = ui.timerHidden ? "Show" : "Hide";
-  applyDivider();
-}
-function applyDivider(){
-  if(window.innerWidth < 900){
-    $("#passage-panel").style.flex = "";
-    $("#questions-panel").style.flex = "";
-    return;
-  }
-  const p = Math.max(20, Math.min(80, ui.dividerPct||50));
-  $("#passage-panel").style.flex = `0 0 calc(${p}% - 3px)`;
-  $("#questions-panel").style.flex = `0 0 calc(${100-p}% - 3px)`;
-}
+  {id:23,p:2,g:'g5',type:'sumgap',from:23,to:26,text:"Some people may be puzzled by attitudes towards performance-enhancing technologies in sports. For example, why is the altitude tent considered acceptable, but not the LZR Racer suit? For distance running, WADA concluded that the altitude tent was not contrary to the [23] of the sport. However, the LZR swimsuit, which is made from a special fabric that aids buoyancy and cuts down [24] was banned. Athletes think they have to continually set fresh [25]. This is made possible by better [26] and training, as well as improved clothing and equipment. However, when sports authorities have to decide whether to give permission for a new performance-enhancing technology to be used, it is important that their decisions are not seen as arbitrary."},
 
-function renderTabs(){
-  const wrap = $("#parttabs"); wrap.innerHTML = "";
-  TEST_DATA.passages.forEach((p,i)=>{
-    const b = document.createElement("button");
-    b.role = "tab";
-    b.className = (i===state.currentPart ? "active":"");
-    b.textContent = `Passage ${p.number} · Q${p.questionRange}`;
-    b.addEventListener("click", ()=> setPart(i));
-    wrap.appendChild(b);
-  });
-}
+  {id:27,p:3,g:'g6',type:'info',text:"the significance of recent discoveries of a large number of massive planets",opts:['A','B','C','D','E','F','G','H','I']},
+  {id:28,p:3,g:'g6',type:'info',text:"an explanation of the difference between the theories of planet creation",opts:['A','B','C','D','E','F','G','H','I']},
+  {id:29,p:3,g:'g6',type:'info',text:"the difficulties of proving that the more recent theory of planet creation is correct",opts:['A','B','C','D','E','F','G','H','I']},
+  {id:30,p:3,g:'g6',type:'info',text:"reasons why Mayer claims he was able to develop his theory",opts:['A','B','C','D','E','F','G','H','I']},
+  {id:31,p:3,g:'g6',type:'info',text:"a detailed explanation of the long-held theory of planet creation",opts:['A','B','C','D','E','F','G','H','I']},
+  {id:32,p:3,g:'g6',type:'info',text:"description of the destructive effect of heat in space",opts:['A','B','C','D','E','F','G','H','I']},
 
-function setPart(i){
-  state.currentPart = i; saveState();
-  $$("#parttabs button").forEach((b,k)=> b.classList.toggle("active", k===i));
-  renderPassage(); renderQuestions();
-  restoreHighlightsInZones();
-  if(window.innerWidth < 900){
-    $("#split").classList.remove("show-passage","show-questions");
-    $("#split").classList.add("show-passage");
-    $("#mobileSwitch").textContent = "Show Questions";
-  }
-}
+  {id:33,p:3,g:'g7',type:'ends',stem:"Traditionally astronomers have believed that"},
+  {id:34,p:3,g:'g7',type:'ends',stem:"Lucio Mayer physically observed that"},
+  {id:35,p:3,g:'g7',type:'ends',stem:"Thomas Quinn believes that"},
+  {id:36,p:3,g:'g7',type:'ends',stem:"Gerard Kuiper was the first to suggest that"},
+  {id:37,p:3,g:'g7',type:'ends',stem:"Alan P. Boss discovered that"},
 
-/* ============================================================
-   RENDER — passage
-   ============================================================ */
-function renderPassage(){
-  const p = TEST_DATA.passages[state.currentPart];
-  const out = $("#passage-panel");
-  out.innerHTML = "";
-  const h = document.createElement("div");
-  h.className = "passage-title";
-  h.textContent = `Reading Passage ${p.number} — ${p.title}`;
-  out.appendChild(h);
-  if(p.subtitle){
-    const s = document.createElement("div"); s.className = "passage-sub"; s.textContent = p.subtitle;
-    out.appendChild(s);
-  }
-  const prose = document.createElement("div");
-  prose.className = "passage-prose";
-  p.paragraphs.forEach((para,idx)=>{
-    const el = document.createElement("p");
-    el.dataset.hlId = `p${p.number}-pp${idx}`;
-    if(para.label){
-      el.classList.add("with-label");
-      const lab = document.createElement("span"); lab.className = "plabel"; lab.textContent = para.label;
-      el.appendChild(lab);
-    }
-    const txt = document.createElement("span");
-    txt.innerHTML = para.html;
-    el.appendChild(txt);
-    prose.appendChild(el);
-  });
-  out.appendChild(prose);
-  out.scrollTop = 0;
-}
+  {id:38,p:3,g:'g8',type:'sumdrag',from:38,to:40,words:["gravitational pull","ice","solid core","ultraviolet light","Milky Way","disk"],text:"The core-accretion model: A hard centre becomes larger and this produces enough gravity to draw gas from the [38] around it. The gravitational-instability model: Stars can break up the outer gaseous parts which surround objects in the sky because the attraction of the [39] from stars is very powerful. Heat caused by [40] can also destroy the material surrounding the objects in a relatively short time. Planet-sized segments may split away from the main body following several orbits of the parent star."}
+];
 
-/* ============================================================
-   RENDER — questions
-   ============================================================ */
-function renderQuestions(){
-  const out = $("#questions-panel"); out.innerHTML = "";
-  const groups = TEST_DATA.groups.filter(g => (g.passage||1)-1 === state.currentPart);
-  groups.forEach(g => out.appendChild(renderGroup(g)));
-  updateCurrentHighlight();
-}
+/* ---------- 3) ANSWERS ---------- */
+const ANSWERS = {
+  1:"tree", 2:"sheep", 3:"soft", 4:"rope", 5:"mines", 6:"steal",
+  7:"True", 8:"Not Given", 9:"False", 10:"Not Given", 11:"False", 12:"True", 13:"False",
+  14:"vii", 15:"vi", 16:"ix", 17:"iv", 18:"ii", 19:"viii", 20:"iii",
+  21:"B", 22:"D",
+  23:"spirit", 24:"drag", 25:"records", 26:"nutrition",
+  27:"E", 28:"B", 29:"H", 30:"I", 31:"A", 32:"D",
+  33:"B", 34:"F", 35:"C", 36:"D", 37:"E",
+  38:"disk", 39:"gravitational pull", 40:"ultraviolet light"
+};
 
-function renderGroup(g){
-  const wrap = document.createElement("section");
-  wrap.className = "group";
-  wrap.dataset.range = g.range;
 
-  const head = document.createElement("div");
-  head.className = "q-header";
-  const range = document.createElement("div"); range.className = "q-range"; range.textContent = `Questions ${g.range}`;
-  head.appendChild(range);
-  wrap.appendChild(head);
 
-  const ins = document.createElement("div");
-  ins.className = "q-instructions";
-  ins.innerHTML = escapeHtml(g.instructions||"");
-  if(g.constraint){
-    const c = document.createElement("span"); c.className="constraint"; c.textContent = g.constraint;
-    ins.appendChild(c);
-  }
-  wrap.appendChild(ins);
+/* ================================================================
+   END OF AUTHORING AREA — engine below (do not edit)
+   ================================================================ */
+const S={testType:'academic',passage:1,question:1,answers:{},phtml:{},timerSecs:3600,timerInt:null,startTime:null,endTime:null,deadline:null,selWord:null,submitted:false,hlRange:null,hlMark:null};
 
-  switch(g.type){
-    case "note_completion":
-    case "table_completion":
-    case "flowchart_completion":
-      renderNoteLike(g, wrap); break;
-    case "tfng":
-    case "ynng":
-      renderTfngYnng(g, wrap); break;
-    case "mcq_single":
-      renderMcqSingle(g, wrap); break;
-    case "mcq_multi":
-      renderMcqMulti(g, wrap); break;
-    case "matching_headings":
-      renderMatching(g, wrap, g.headingList, true); break;
-    case "matching_features":
-      renderMatching(g, wrap, g.featureList, false); break;
-    case "sentence_endings":
-      renderSentenceEndings(g, wrap); break;
-    case "summary_completion":
-      renderSummary(g, wrap, false); break;
-    case "summary_wordlist":
-      renderSummary(g, wrap, true); break;
-  }
-  return wrap;
-}
+function $(i){return document.getElementById(i)}
+function esc(v){return String(v==null?'':v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function PD(id){return PASSAGES[id]}
+function getQsP(p){return QUESTIONS.filter(q=>q.p===p)}
+function allIds(){const ids=[];QUESTIONS.forEach(q=>{if(q.type==='multi'||q.type==='sumgap'||q.type==='sumdrag'){for(let n=q.from;n<=q.to;n++)ids.push(n)}else if(q.type==='multi-child'){}else ids.push(q.id)});return [...new Set(ids)].sort((a,b)=>a-b)}
+function pOf(n){for(const q of QUESTIONS){if(q.type==='multi'||q.type==='sumgap'||q.type==='sumdrag'){if(n>=q.from&&n<=q.to)return q.p}else if(q.id===n)return q.p}return 1}
+function multiBlockFor(n){return QUESTIONS.find(q=>q.type==='multi'&&n>=q.from&&n<=q.to)}
+function isAns(id){const a=S.answers[id];if(a===undefined||a===null||a==='')return false;if(Array.isArray(a))return a.length>0;return true}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active')}
+function setType(t){S.testType=t;$('btn-acad').classList.toggle('active',t==='academic');$('btn-gen').classList.toggle('active',t==='general')}
+function goInstr(){showScreen('screen-instructions')}
 
-function renderNoteLike(g, wrap){
-  if(g.heading){
-    const h = document.createElement("h4"); h.className = "gheading"; h.textContent = g.heading;
-    wrap.appendChild(h);
-  }
-  g.lines.forEach(ln => {
-    if(typeof ln === "string"){
-      const d = document.createElement("div"); d.className = "note-line heading"; d.textContent = ln;
-      wrap.appendChild(d);
-    } else {
-      const d = document.createElement("div"); d.className = "note-line"; d.dataset.qid = ln.id;
-      const qn = document.createElement("span"); qn.className = "qn"; qn.textContent = ln.id;
-      d.appendChild(qn);
-      const before = document.createElement("span"); before.innerHTML = " "+escapeHtml(ln.before||"")+" ";
-      const inp = makeGapInput(ln.id, g.constraint, ln.answer);
-      const after = document.createElement("span"); after.innerHTML = " "+escapeHtml(ln.after||"");
-      d.appendChild(before); d.appendChild(inp); d.appendChild(after);
-      d.appendChild(makeReviewFlag(ln.id));
-      d.appendChild(makeMark(ln.id, ln.answer, "gap"));
-      wrap.appendChild(d);
-    }
-  });
-}
-
-function renderTfngYnng(g, wrap){
-  g.items.forEach(it => {
-    const row = document.createElement("div"); row.className = "q-row"; row.dataset.qid = it.id;
-    const qn = document.createElement("span"); qn.className = "qn"; qn.textContent = it.id;
-    const tx = document.createElement("span"); tx.className = "qtxt"; tx.innerHTML = escapeHtml(it.text);
-    row.appendChild(qn); row.appendChild(tx);
-    const opts = document.createElement("div"); opts.className = "q-options";
-    g.options.forEach(opt => {
-      const lab = document.createElement("label");
-      const r = document.createElement("input"); r.type="radio"; r.name = "q"+it.id; r.value = opt;
-      if(state.answers[it.id] === opt) r.checked = true;
-      r.addEventListener("change", ()=> setAnswer(it.id, opt));
-      lab.appendChild(r);
-      const s = document.createElement("span"); s.textContent = " "+opt; lab.appendChild(s);
-      opts.appendChild(lab);
-    });
-    row.appendChild(opts);
-    row.appendChild(makeReviewFlag(it.id));
-    row.appendChild(makeMark(it.id, it.answer, "single"));
-    wrap.appendChild(row);
-  });
-}
-
-function renderMcqSingle(g, wrap){
-  g.items.forEach(it => {
-    const row = document.createElement("div"); row.className = "q-item"; row.dataset.qid = it.id;
-    const stem = document.createElement("div"); stem.className = "q-stem";
-    stem.innerHTML = `<span class="q-num">${it.id}</span>${escapeHtml(it.stem)}`;
-    row.appendChild(stem);
-    const opts = document.createElement("div"); opts.className = "q-options";
-    it.options.forEach(opt => {
-      const lab = document.createElement("label");
-      const r = document.createElement("input"); r.type="radio"; r.name="q"+it.id; r.value=opt.label;
-      if(state.answers[it.id] === opt.label) r.checked = true;
-      r.addEventListener("change", ()=> setAnswer(it.id, opt.label));
-      lab.appendChild(r);
-      const lb = document.createElement("span"); lb.className="lab"; lb.textContent=opt.label; lab.appendChild(lb);
-      const sp = document.createElement("span"); sp.innerHTML = escapeHtml(opt.text); lab.appendChild(sp);
-      opts.appendChild(lab);
-    });
-    row.appendChild(opts);
-    row.appendChild(makeReviewFlag(it.id));
-    row.appendChild(makeMark(it.id, it.answer, "single"));
-    wrap.appendChild(row);
-  });
-}
-
-function renderMcqMulti(g, wrap){
-  const row = document.createElement("div"); row.className = "q-item";
-  row.dataset.qid = g.ids[0];
-  const idsLine = document.createElement("div"); idsLine.className = "mcq-multi-ids"; idsLine.textContent = `Questions ${g.ids.join(" & ")}`;
-  row.appendChild(idsLine);
-  const stem = document.createElement("div"); stem.className = "mcq-multi-stem";
-  stem.innerHTML = escapeHtml(g.stem);
-  row.appendChild(stem);
-  const opts = document.createElement("div"); opts.className = "q-options";
-  const key = "mcq_" + g.range;
-  const selected = state.mcqMulti[key] ? [...state.mcqMulti[key]] : [];
-  g.options.forEach(opt => {
-    const lab = document.createElement("label");
-    const c = document.createElement("input"); c.type="checkbox"; c.value=opt.label;
-    c.checked = selected.includes(opt.label);
-    c.addEventListener("change", e => {
-      const cur = state.mcqMulti[key] ? [...state.mcqMulti[key]] : [];
-      if(c.checked){
-        if(cur.length >= g.selectCount){
-          c.checked = false;
-          flashToast(`Pick only ${g.selectCount}.`);
-          return;
-        }
-        cur.push(opt.label);
-      } else {
-        const i = cur.indexOf(opt.label); if(i>=0) cur.splice(i,1);
-      }
-      state.mcqMulti[key] = cur;
-      // also write answers for both ids (sorted), only when count == required
-      g.ids.forEach((id,i)=>{
-        state.answers[id] = cur[i] || "";
-      });
-      saveState(); renderPalette();
-    });
-    lab.appendChild(c);
-    const lb = document.createElement("span"); lb.className="lab"; lb.textContent = opt.label; lab.appendChild(lb);
-    const sp = document.createElement("span"); sp.innerHTML = escapeHtml(opt.text); lab.appendChild(sp);
-    opts.appendChild(lab);
-  });
-  row.appendChild(opts);
-  row.appendChild(makeReviewFlag(g.ids[0]));
-  // mark for each id
-  row.appendChild(makeMark(g.ids[0], g.answer, "mcq_multi", g));
-  wrap.appendChild(row);
-}
-
-function renderMatching(g, wrap, list, isHeadings){
-  const box = document.createElement("div"); box.className = "list-box";
-  const ul = document.createElement("ul");
-  list.forEach(o => {
-    const li = document.createElement("li");
-    li.innerHTML = `<span class="lab">${o.label}</span> ${escapeHtml(o.text)}`;
-    ul.appendChild(li);
-  });
-  box.appendChild(ul);
-  wrap.appendChild(box);
-
-  g.items.forEach(it => {
-    const row = document.createElement("div"); row.className = "q-row"; row.dataset.qid = it.id;
-    const qn = document.createElement("span"); qn.className = "qn"; qn.textContent = it.id;
-    const tx = document.createElement("span"); tx.className = "qtxt"; tx.innerHTML = escapeHtml(it.text||it.stem||"");
-    row.appendChild(qn); row.appendChild(tx);
-    const sel = document.createElement("select");
-    sel.innerHTML = `<option value="">— select —</option>` +
-      list.map(o => `<option value="${o.label}">${o.label}${isHeadings ? " — "+escapeHtml(o.text) : (o.text && o.text!==o.label ? " — "+escapeHtml(o.text) : "")}</option>`).join("");
-    if(state.answers[it.id]) sel.value = state.answers[it.id];
-    sel.addEventListener("change", ()=> setAnswer(it.id, sel.value));
-    row.appendChild(sel);
-    row.appendChild(makeReviewFlag(it.id));
-    row.appendChild(makeMark(it.id, it.answer, "single"));
-    wrap.appendChild(row);
-  });
-}
-
-function renderSentenceEndings(g, wrap){
-  const box = document.createElement("div"); box.className = "list-box";
-  const ul = document.createElement("ul");
-  g.endingList.forEach(o => {
-    const li = document.createElement("li");
-    li.innerHTML = `<span class="lab">${o.label}</span> ${escapeHtml(o.text)}`;
-    ul.appendChild(li);
-  });
-  box.appendChild(ul);
-  wrap.appendChild(box);
-
-  g.items.forEach(it => {
-    const row = document.createElement("div"); row.className = "q-row"; row.dataset.qid = it.id;
-    const qn = document.createElement("span"); qn.className = "qn"; qn.textContent = it.id;
-    const tx = document.createElement("span"); tx.className = "qtxt"; tx.innerHTML = escapeHtml(it.stem) + " …";
-    row.appendChild(qn); row.appendChild(tx);
-    const sel = document.createElement("select");
-    sel.innerHTML = `<option value="">— select —</option>` +
-      g.endingList.map(o => `<option value="${o.label}">${o.label} — ${escapeHtml(o.text)}</option>`).join("");
-    if(state.answers[it.id]) sel.value = state.answers[it.id];
-    sel.addEventListener("change", ()=> setAnswer(it.id, sel.value));
-    row.appendChild(sel);
-    row.appendChild(makeReviewFlag(it.id));
-    row.appendChild(makeMark(it.id, it.answer, "single"));
-    wrap.appendChild(row);
-  });
-}
-
-function renderSummary(g, wrap, isWordList){
-  if(g.heading){
-    const h = document.createElement("h4"); h.className = "gheading"; h.textContent = g.heading;
-    wrap.appendChild(h);
-  }
-  if(isWordList && g.wordList){
-    const box = document.createElement("div"); box.className = "list-box";
-    const ul = document.createElement("ul");
-    g.wordList.forEach(o => {
-      const li = document.createElement("li");
-      li.innerHTML = `<span class="lab">${o.label}</span> ${escapeHtml(o.text)}`;
-      ul.appendChild(li);
-    });
-    box.appendChild(ul); wrap.appendChild(box);
-  }
-  const block = document.createElement("div"); block.className = "summary-block";
-  g.segments.forEach(seg => {
-    if(seg.heading){
-      const s = document.createElement("span"); s.className = "heading"; s.textContent = seg.heading;
-      block.appendChild(s); return;
-    }
-    if(seg.text){
-      const s = document.createElement("span"); s.innerHTML = escapeHtml(seg.text); block.appendChild(s); return;
-    }
-    if(seg.gap){
-      if(isWordList){
-        // dropdown of word list labels
-        const sel = document.createElement("select");
-        sel.dataset.qid = seg.gap;
-        sel.innerHTML = `<option value="">—</option>` +
-          g.wordList.map(o => `<option value="${o.label}">${o.label} — ${escapeHtml(o.text)}</option>`).join("");
-        if(state.answers[seg.gap]) sel.value = state.answers[seg.gap];
-        sel.addEventListener("change", ()=> setAnswer(seg.gap, sel.value));
-        // Inline qn marker
-        const qn = document.createElement("span"); qn.className = "qn"; qn.textContent = seg.gap + " ";
-        block.appendChild(qn); block.appendChild(sel);
-        const mk = makeMark(seg.gap, seg.answer, "single");
-        block.appendChild(mk);
-      } else {
-        const qn = document.createElement("span"); qn.className = "qn"; qn.textContent = seg.gap + " ";
-        block.appendChild(qn);
-        const inp = makeGapInput(seg.gap, g.constraint, seg.answer);
-        block.appendChild(inp);
-        const mk = makeMark(seg.gap, seg.answer, "gap");
-        block.appendChild(mk);
-      }
-    }
-  });
-  wrap.appendChild(block);
-}
-
-/* ---------- shared helpers ---------- */
-function makeGapInput(qid, constraint, answer){
-  const inp = document.createElement("input");
-  inp.type = "text"; inp.className = "gap-input"; inp.dataset.qid = qid;
-  inp.autocomplete = "off"; inp.spellcheck = false;
-  inp.placeholder = "Q" + qid;
-  if(state.answers[qid] != null) inp.value = state.answers[qid];
-  const wordLimit = constraintWordLimit(constraint);
-  inp.addEventListener("input", () => {
-    setAnswer(qid, inp.value);
-    if(wordLimit && wordCount(inp.value) > wordLimit){
-      inp.classList.add("warn"); inp.title = `Limit: ${constraint}`;
-    } else { inp.classList.remove("warn"); inp.title = ""; }
-  });
-  return inp;
-}
-function makeReviewFlag(qid){
-  const lab = document.createElement("label"); lab.className="review-flag" + (state.reviewFlags[qid] ? " on":"");
-  const c = document.createElement("input"); c.type="checkbox"; c.checked = !!state.reviewFlags[qid];
-  c.addEventListener("change", () => {
-    state.reviewFlags[qid] = c.checked || undefined;
-    if(!c.checked) delete state.reviewFlags[qid];
-    lab.classList.toggle("on", c.checked);
-    saveState(); renderPalette();
-  });
-  lab.appendChild(c);
-  const s = document.createElement("span"); s.textContent = "Review";
-  lab.appendChild(s);
-  return lab;
-}
-function makeMark(qid, answer, kind, group){
-  const sp = document.createElement("span"); sp.className = "q-mark hide"; sp.dataset.markFor = qid;
-  sp.dataset.kind = kind;
-  if(group) sp.dataset.group = "1";
-  return sp;
-}
-function constraintWordLimit(c){
-  if(!c) return 0;
-  c = c.toUpperCase();
-  if(c.includes("ONE WORD")) return 1;
-  if(c.includes("TWO WORDS")) return 2;
-  if(c.includes("THREE WORDS")) return 3;
-  const m = c.match(/(\d+)\s*WORD/);
-  return m ? parseInt(m[1],10) : 0;
-}
-function wordCount(s){ return (s||"").trim() ? s.trim().split(/\s+/).length : 0; }
-function escapeHtml(s){
-  return (s||"").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
-}
-
-function setAnswer(qid, val){
-  if(val === "" || val == null) delete state.answers[qid]; else state.answers[qid] = String(val);
-  saveState(); renderPalette();
-}
-
-/* ============================================================
-   PALETTE + NAVIGATION
-   ============================================================ */
-function renderPalette(){
-  const wrap = $("#palette"); wrap.innerHTML = "";
-  TEST_DATA.passages.forEach((p,i)=>{
-    const grp = document.createElement("div"); grp.className = "palette-grp";
-    const gl = document.createElement("span"); gl.className = "glabel"; gl.textContent = "P"+p.number;
-    grp.appendChild(gl);
-    const ids = ITEMS.filter(it => (it.group.passage||1)-1 === i).map(it=>it.id);
-    ids.forEach(qid => {
-      const b = document.createElement("button"); b.className="pbtn"; b.textContent = qid; b.dataset.qid = qid;
-      if(isAnswered(qid)) b.classList.add("answered");
-      if(state.reviewFlags[qid]) b.classList.add("flagged");
-      if(qid === state.currentQid) b.classList.add("current");
-      if(state.submitted){
-        const ok = isCorrect(qid);
-        b.classList.add(ok ? "correct":"incorrect");
-      }
-      b.addEventListener("click", ()=> gotoQuestion(qid));
-      grp.appendChild(b);
-    });
-    wrap.appendChild(grp);
-  });
-}
-function isAnswered(qid){
-  const item = itemForId(qid);
-  if(!item) return false;
-  if(item.group.type === "mcq_multi"){
-    const key = "mcq_"+item.group.range;
-    const cur = state.mcqMulti[key]||[];
-    return cur.length >= item.group.selectCount;
-  }
-  return !!(state.answers[qid] && String(state.answers[qid]).trim() !== "");
-}
-function isCorrect(qid){
-  const ix = itemForId(qid);
-  if(!ix) return false;
-  const g = ix.group;
-  if(g.type === "mcq_multi"){
-    const key = "mcq_"+g.range;
-    const cur = (state.mcqMulti[key]||[]).slice().sort().join(",");
-    const ans = (g.answer||[]).slice().sort().join(",");
-    return cur === ans;
-  }
-  if(g.type === "tfng" || g.type === "ynng" || g.type === "mcq_single" ||
-     g.type === "matching_headings" || g.type === "matching_features" ||
-     g.type === "sentence_endings" || g.type === "summary_wordlist"){
-    let it;
-    if(g.items) it = g.items.find(x=>x.id===qid);
-    if(g.segments){
-      const seg = g.segments.find(s=>s && s.gap===qid);
-      if(seg) it = {answer:seg.answer};
-    }
-    if(!it) return false;
-    return String(state.answers[qid]||"").toUpperCase().trim() === String(it.answer||"").toUpperCase().trim();
-  }
-  // gap fills
-  let item;
-  if(g.items) item = g.items.find(x=>x.id===qid);
-  if(g.lines){ const found = g.lines.find(l => typeof l === "object" && l.id===qid); if(found) item = found; }
-  if(g.segments){ const seg = g.segments.find(s=>s && s.gap===qid); if(seg) item={answer:seg.answer}; }
-  if(!item) return false;
-  const accepted = Array.isArray(item.answer) ? item.answer : [item.answer];
-  const got = (state.answers[qid]||"").toString().toLowerCase().replace(/\s+/g," ").trim();
-  return accepted.some(a => normalize(a) === got);
-}
-function normalize(s){ return String(s||"").toLowerCase().replace(/\s+/g," ").trim(); }
-
-function gotoQuestion(qid){
-  state.currentQid = qid;
-  const p = partForQid(qid);
-  if(p !== state.currentPart){
-    setPart(p);
-  } else {
-    updateCurrentHighlight();
-  }
-  // scroll into view
-  setTimeout(()=>{
-    const el = document.querySelector(`#questions-panel [data-qid="${qid}"]`);
-    if(el){ el.scrollIntoView({behavior:"smooth",block:"center"}); }
-  }, 30);
-  renderPalette();
-  saveState();
-}
-function updateCurrentHighlight(){
-  $$("#questions-panel .q-row, #questions-panel .q-item, #questions-panel .note-line").forEach(el=>{
-    el.classList.toggle("current", parseInt(el.dataset.qid||"0",10) === state.currentQid);
-  });
-}
-function prev(){ const i = ITEMS.findIndex(x=>x.id===state.currentQid); if(i>0) gotoQuestion(ITEMS[i-1].id); }
-function next(){ const i = ITEMS.findIndex(x=>x.id===state.currentQid); if(i<ITEMS.length-1) gotoQuestion(ITEMS[i+1].id); }
-
-/* ============================================================
-   TIMER
-   ============================================================ */
-let timerInterval = null;
-function startTimer(){
-  if(state.submitted) { renderTimer(); return; }
-  if(timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(()=>{
-    if(state.remaining <= 0){
-      clearInterval(timerInterval); timerInterval=null;
-      state.remaining = 0; renderTimer(); saveState();
-      submit(true); return;
-    }
-    state.remaining -= 1;
-    renderTimer();
-    if(state.remaining % 5 === 0) saveState();
-  }, 1000);
+function startTest(){showScreen('screen-test');$('hdr-type').textContent=(S.testType==='academic'?'Academic':'General Training')+' Reading';S.timerSecs=3600;S.startTime=Date.now();S.deadline=S.startTime+3600000;S.passage=1;S.question=allIds()[0];renderP(1);renderQs(1);renderPartsBar();updateNav();startTimer();window.addEventListener('beforeunload',warnL)}
+function warnL(e){e.preventDefault();e.returnValue=''}
+function syncTimer(){
+  if(S.submitted||!S.deadline)return;
+  S.timerSecs=Math.max(0,Math.ceil((S.deadline-Date.now())/1000));
   renderTimer();
-}
-function renderTimer(){
-  const t = $("#timer");
-  const r = Math.max(0, state.remaining);
-  const mm = String(Math.floor(r/60)).padStart(2,"0");
-  const ss = String(r%60).padStart(2,"0");
-  t.textContent = `${mm}:${ss}`;
-  t.classList.toggle("low", r<=300 && r>60);
-  t.classList.toggle("crit", r<=60);
-}
-
-/* ============================================================
-   HIGHLIGHTING (passages + questions, text-only, persistent)
-   ============================================================ */
-const HL_COLORS = {y:"hl-y", g:"hl-g", p:"hl-p"};
-let lastSelectionInfo = null;
-
-function findZone(node){
-  let n = node && node.nodeType === 3 ? node.parentNode : node;
-  while(n && n !== document.body){
-    if(n.classList && n.classList.contains("hl-zone")) return n;
-    n = n.parentNode;
+  if(S.timerSecs<=0){
+    clearInterval(S.timerInt);
+    S.endTime=S.deadline;
+    window.removeEventListener('beforeunload',warnL);
+    showResults();
   }
-  return null;
 }
-function findRegion(node){
-  let n = node && node.nodeType === 3 ? node.parentNode : node;
-  while(n && n !== document.body){
-    if(n.dataset && n.dataset.hlId) return n;
-    n = n.parentNode;
-  }
-  return null;
-}
-function selectionInsideRegion(){
-  const sel = window.getSelection();
-  if(!sel || sel.rangeCount === 0 || sel.isCollapsed) return null;
-  const r = sel.getRangeAt(0);
-  const zone = findZone(r.commonAncestorContainer);
-  if(!zone) return null;
-  // Determine region: walk up from start container to a region
-  const startRegion = findRegion(r.startContainer);
-  const endRegion = findRegion(r.endContainer);
-  if(!startRegion || startRegion !== endRegion) return null; // limit highlight to one region
-  // Disallow if range crosses any input/select
-  if(rangeContainsForm(r)) return null;
-  return { range:r, region:startRegion, zone };
-}
-function rangeContainsForm(range){
-  const frag = range.cloneContents();
-  return !!frag.querySelector("input,select,textarea,button");
-}
+function startTimer(){clearInterval(S.timerInt);S.timerInt=setInterval(syncTimer,1000);syncTimer()}
+function renderTimer(){const m=String(Math.floor(Math.abs(S.timerSecs)/60)).padStart(2,'0'),s=String(Math.abs(S.timerSecs)%60).padStart(2,'0'),el=$('timer');el.textContent=m+':'+s;el.className='timer';if(S.timerSecs<=300)el.classList.add('danger');else if(S.timerSecs<=600)el.classList.add('warn')}
+document.addEventListener('visibilitychange',syncTimer);
+window.addEventListener('focus',syncTimer);
 
-// compute char offsets of a range within a region (text-only)
-function rangeToOffsets(range, region){
-  let start=-1, end=-1, idx=0;
-  const walker = document.createTreeWalker(region, NodeFilter.SHOW_TEXT, {
-    acceptNode(n){
-      // skip text inside form controls
-      let p = n.parentNode;
-      while(p && p!==region){ if(/^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(p.nodeName)) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
-      return NodeFilter.FILTER_ACCEPT;
-    }
+function saveP(){S.phtml[S.passage]=$('pbody').innerHTML}
+function renderP(id){$('pbody').innerHTML=S.phtml[id]||PD(id).html;$('pp-title').textContent='Passage '+id;$('pp-qr').textContent=PD(id).qr}
+
+function renderQs(pid){
+  $('qp-title').textContent=PD(pid).qr;
+  $('qp-pname').textContent='Passage '+pid+': '+PD(pid).title;
+  const qs=getQsP(pid),grps={},order=[];
+  qs.forEach(q=>{if(!grps[q.g]){grps[q.g]=[];order.push(q.g)}grps[q.g].push(q)});
+  let html='';
+  order.forEach(gk=>{
+    const grp=grps[gk],meta=GROUPS[gk];
+    html+='<div class="qgrp" id="grp-'+gk+'"><div class="qtbadge">'+esc(meta.type)+'</div><div class="qinstr">'+meta.instr+'</div>';
+    if(grp.some(q=>q.type==='heads')&&HEADINGS.length){html+='<div class="listbox"><div class="listbox-l">List of Headings</div>';HEADINGS.forEach(h=>{html+='<div class="listbox-i"><b>'+h.n+'.</b> '+esc(h.t)+'</div>'});html+='</div>'}
+    if(grp.some(q=>q.type==='ends')){html+='<div class="listbox"><div class="listbox-l">Endings</div>';ENDINGS.forEach(e=>{html+='<div class="listbox-i"><b>'+e.n+'.</b> '+esc(e.t)+'</div>'});html+='</div>'}
+    grp.forEach(q=>{html+=renderQI(q)});
+    html+='</div>';
   });
-  let node;
-  while((node = walker.nextNode())){
-    const len = node.nodeValue.length;
-    if(node === range.startContainer) start = idx + range.startOffset;
-    if(node === range.endContainer) { end = idx + range.endOffset; break; }
-    idx += len;
-  }
-  if(start===-1 || end===-1) return null;
-  if(start>end) [start,end]=[end,start];
-  if(start===end) return null;
-  return {start, end};
+  $('qbody').innerHTML=html;
+  attachListeners();
+  if(S.submitted)markReviewColours();
 }
-function applyHighlightToRegion(region, start, end, color, note){
-  const walker = document.createTreeWalker(region, NodeFilter.SHOW_TEXT, {
-    acceptNode(n){
-      let p = n.parentNode;
-      while(p && p!==region){ if(/^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(p.nodeName)) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
-      return NodeFilter.FILTER_ACCEPT;
+
+function renderQI(q){
+  if(q.type==='multi-child')return '';
+  if(q.type==='multi')return renderMulti(q);
+  if(q.type==='sumgap'||q.type==='sumdrag')return renderSummary(q);
+  if(q.type==='gap')return renderGap(q);
+  if(q.type==='ends')return renderEnds(q);
+  let html='<div class="qi" id="qi-'+q.id+'"><div class="qrow"><div class="qbdg">'+q.id+'</div><div class="qtxt">'+esc(q.text)+'</div></div>';
+  if(q.type==='tfng')html+=renderRadio(q.id,['True','False','Not Given']);
+  else if(q.type==='ynng')html+=renderRadio(q.id,['Yes','No','Not Given']);
+  else if(q.type==='mcq')html+=renderRadio(q.id,q.opts);
+  else if(q.type==='info'){const v=S.answers[q.id]||'';html+='<div class="opts"><select class="hsel" data-q="'+q.id+'" onchange="saveA('+q.id+',this.value)"><option value="">\u2014 Select paragraph \u2014</option>';q.opts.forEach(o=>{html+='<option value="'+o+'"'+(v===o?' selected':'')+'>'+o+'</option>'});html+='</select></div>'}
+  else if(q.type==='heads'){const v=S.answers[q.id]||'';html+='<div class="opts"><select class="hsel" data-q="'+q.id+'" onchange="saveA('+q.id+',this.value)"><option value="">\u2014 Select heading \u2014</option>';HEADINGS.forEach(h=>{html+='<option value="'+h.n+'"'+(v===h.n?' selected':'')+'>'+h.n+'. '+esc(h.t)+'</option>'});html+='</select></div>'}
+  else if(q.type==='short'){const v=S.answers[q.id]||'';html+='<input class="ainput" type="text" value="'+esc(v)+'" placeholder="Type your answer..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-q="'+q.id+'" oninput="saveA('+q.id+',this.value)" />';if(q.hint)html+='<div class="ahint">'+esc(q.hint)+'</div>'}
+  html+='</div>';return html;
+}
+
+function renderGap(q){
+  const v=S.answers[q.id]||'';
+  const input='<input class="gap-input" type="text" value="'+esc(v)+'" aria-label="Question '+q.id+'" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-q="'+q.id+'" oninput="saveA('+q.id+',this.value)" />';
+  const body=esc(q.text).replace(/_{2,}/,input);
+  return '<div class="qi" id="qi-'+q.id+'"><div class="qrow"><div class="qbdg">'+q.id+'</div><div class="qtxt">'+body+'</div></div></div>';
+}
+function renderRadio(qId,opts){let html='<div class="opts">';opts.forEach(o=>{const val=/^[A-E]\)/.test(o)?o[0]:o;const sel=S.answers[qId]===val;html+='<label class="olbl'+(sel?' sel':'')+'"><input type="radio" name="q'+qId+'" value="'+val+'" '+(sel?'checked':'')+' onchange="saveA('+qId+',\''+val+'\')" />'+esc(o)+'</label>'});return html+'</div>'}
+function renderMulti(q){
+  const ids=[];for(let n=q.from;n<=q.to;n++)ids.push(n);
+  const chosen=ids.map(n=>S.answers[n]).filter(Boolean);
+  let html='<div class="qi" id="qi-'+q.from+'"><div class="qrow"><div class="qbdg">'+q.from+'\u2013'+q.to+'</div><div class="qtxt">'+esc(q.prompt)+'</div></div>';
+  html+='<div class="cbnote">Choose '+(q.pick||2)+' answers</div><div class="opts">';
+  q.opts.forEach(o=>{const letter=o[0];const sel=chosen.includes(letter);html+='<label class="olbl'+(sel?' sel':'')+'"><input type="checkbox" name="m'+q.from+'-'+q.to+'" value="'+letter+'" '+(sel?'checked':'')+' onchange="saveMulti('+q.from+','+q.to+',\''+letter+'\',this.checked)" />'+esc(o)+'</label>'});
+  html+='</div></div>';return html;
+}
+function renderEnds(q){
+  const v=S.answers[q.id]||'';
+  const usedElsewhere=new Set(QUESTIONS.filter(x=>x.type==='ends'&&x.id!==q.id).map(x=>S.answers[x.id]).filter(Boolean));
+  let opts='<option value="">\u2014 Select ending \u2014</option>';
+  ENDINGS.forEach(e=>{const dis=usedElsewhere.has(e.n)&&v!==e.n;opts+='<option value="'+e.n+'"'+(v===e.n?' selected':'')+(dis?' disabled':'')+'>'+e.n+'. '+esc(e.t)+'</option>'});
+  return '<div class="ends-row" id="qi-'+q.id+'"><div class="qbdg">'+q.id+'</div><div class="ends-stem">'+esc(q.stem)+'<br><select class="hsel hsel-inline" data-q="'+q.id+'" onchange="saveEnd('+q.id+',this.value)">'+opts+'</select></div></div>';
+}
+function renderSummary(q){
+  const ids=[];for(let n=q.from;n<=q.to;n++)ids.push(n);
+  let html='<div class="qi" id="qi-'+q.from+'">';
+  if(q.type==='sumdrag'){
+    html+='<div class="wbank" id="wbank-'+q.from+'"><div class="wbl">Word Bank \u2014 drag a word to a gap (or click a word, then a gap)</div>';
+    (q.words||[]).forEach(w=>{const used=ids.some(n=>S.answers[n]===w);html+='<span class="wtile'+(used?' wused':'')+'" draggable="'+(!used)+'" data-word="'+esc(w)+'" data-block="'+q.from+'" onclick="selWord('+q.from+',this.dataset.word)" ondragstart="dragWord(event)" ondragend="dragEnd(event)">'+esc(w)+'</span>'});
+    html+='</div>';
+  }
+  let body=esc(q.text);
+  ids.forEach(n=>{
+    const v=S.answers[n]||'';
+    let cell;
+    if(q.type==='sumdrag'){
+      cell='<span class="blank'+(v?' filled':'')+'" data-blk="'+n+'" data-block="'+q.from+'" onclick="clickBlank('+n+','+q.from+')" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)" ondrop="dropWord(event,'+n+','+q.from+')"><span class="bn">'+n+'</span>'+(v?esc(v):'')+'</span>';
+    }else{
+      cell='<input class="gap-input" type="text" value="'+esc(v)+'" aria-label="Question '+n+'" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-q="'+n+'" oninput="saveA('+n+',this.value)" />';
     }
+    body=body.split('['+n+']').join(cell);
   });
-  let node, idx=0;
-  const toWrap = [];
-  while((node = walker.nextNode())){
-    const len = node.nodeValue.length;
-    const s = Math.max(start, idx);
-    const e = Math.min(end, idx+len);
-    if(s < e){
-      toWrap.push({node, s: s-idx, e: e-idx});
-    }
-    idx += len;
-    if(idx >= end) break;
-  }
-  // wrap from end-to-start to preserve offsets
-  toWrap.reverse().forEach(w => {
-    const text = w.node.nodeValue;
-    const before = text.slice(0, w.s);
-    const mid = text.slice(w.s, w.e);
-    const after = text.slice(w.e);
-    const span = document.createElement("span");
-    span.className = "hl " + (HL_COLORS[color]||"hl-y") + (note?" hl-note":"");
-    if(note){ span.dataset.note = note; span.title = note; }
-    span.dataset.color = color;
-    span.textContent = mid;
-    const frag = document.createDocumentFragment();
-    if(before) frag.appendChild(document.createTextNode(before));
-    frag.appendChild(span);
-    if(after) frag.appendChild(document.createTextNode(after));
-    w.node.parentNode.replaceChild(frag, w.node);
+  html+='<div class="sumtxt">'+body+'</div>';
+  if(q.hint)html+='<div class="ahint" style="padding-left:0;margin-top:8px">'+esc(q.hint)+'</div>';
+  html+='</div>';return html;
+}
+
+function attachListeners(){
+  document.querySelectorAll('.olbl input[type=radio]').forEach(inp=>{inp.addEventListener('change',function(){document.querySelectorAll('input[name="'+this.name+'"]').forEach(r=>r.closest('.olbl').classList.toggle('sel',r.checked));refreshFooter()})});
+}
+function saveA(qId,val){if(S.submitted)return;S.answers[qId]=val;refreshFooter()}
+function saveEnd(qId,val){if(S.submitted)return;S.answers[qId]=val;renderQs(S.passage);refreshFooter();const el=$('qi-'+qId);if(el)el.scrollIntoView({block:'nearest'})}
+function saveMulti(from,to,letter,checked){
+  if(S.submitted)return;
+  const blk=QUESTIONS.find(q=>q.type==='multi'&&q.from===from);const pick=(blk&&blk.pick)||2;
+  const ids=[];for(let n=from;n<=to;n++)ids.push(n);
+  let chosen=ids.map(n=>S.answers[n]).filter(Boolean);
+  if(checked){
+    if(chosen.length>=pick){const inp=document.querySelector('input[name="m'+from+'-'+to+'"][value="'+letter+'"]');if(inp){inp.checked=false;inp.closest('.olbl').classList.remove('sel')}return}
+    chosen.push(letter);
+  }else{chosen=chosen.filter(l=>l!==letter)}
+  chosen.sort();
+  ids.forEach((n,i)=>{S.answers[n]=chosen[i]||''});
+  document.querySelectorAll('input[name="m'+from+'-'+to+'"]').forEach(c=>c.closest('.olbl').classList.toggle('sel',c.checked));
+  refreshFooter();
+}
+
+/* summary drag/click */
+function selWord(block,w){if(S.submitted)return;S.selWord={block:Number(block),word:w};document.querySelectorAll('#wbank-'+block+' .wtile').forEach(t=>t.classList.toggle('wsel',t.dataset.word===w&&!t.classList.contains('wused')))}
+function clickBlank(n,block){if(S.submitted)return;if(S.answers[n]){S.answers[n]='';S.selWord=null;renderQs(S.passage);refreshFooter();return}if(S.selWord&&S.selWord.block===Number(block)){placeWord(n,S.selWord.word);S.selWord=null}}
+function placeWord(n,w){const blk=QUESTIONS.find(q=>q.type==='sumdrag'&&n>=q.from&&n<=q.to);if(!blk)return;for(let k=blk.from;k<=blk.to;k++){if(S.answers[k]===w)S.answers[k]=''}S.answers[n]=w;renderQs(S.passage);refreshFooter()}
+function dragWord(e){if(S.submitted){e.preventDefault();return}const t=e.currentTarget;e.dataTransfer.setData('text/plain',JSON.stringify({block:t.dataset.block,word:t.dataset.word}));e.dataTransfer.effectAllowed='move';t.classList.add('dragging')}
+function dragEnd(e){e.currentTarget.classList.remove('dragging')}
+function allowDrop(e){if(S.submitted)return;e.preventDefault();e.currentTarget.classList.add('dragover');e.dataTransfer.dropEffect='move'}
+function leaveDrop(e){e.currentTarget.classList.remove('dragover')}
+function dropWord(e,n,block){e.preventDefault();e.currentTarget.classList.remove('dragover');try{const d=JSON.parse(e.dataTransfer.getData('text/plain'));if(String(d.block)===String(block))placeWord(n,d.word)}catch(_){}}
+
+/* footer */
+function renderPartsBar(){
+  const bar=$('partsBar');bar.innerHTML='';
+  [1,2,3].forEach(p=>{
+    if(p===S.passage){const cell=document.createElement('div');cell.className='part-cell active-part';cell.innerHTML='<span class="pc-active-label">Passage '+p+'</span><div class="qnav" id="qnav"></div>';bar.appendChild(cell)}
+    else{const ids=allIds().filter(n=>pOf(n)===p),ans=ids.filter(isAns).length;const cell=document.createElement('button');cell.className='part-cell collapsed';cell.innerHTML='<span class="pc-label">Passage '+p+'</span><span class="pc-count">'+ans+' of '+ids.length+'</span>';cell.addEventListener('click',()=>switchP(p));bar.appendChild(cell)}
   });
+  renderQnav();
 }
-function getStored(){ try{ return JSON.parse(localStorage.getItem(HLKEY)||"{}"); }catch(e){ return {}; } }
-function setStored(s){ try{ localStorage.setItem(HLKEY, JSON.stringify(s)); }catch(e){} }
+function renderQnav(){const nav=$('qnav');if(!nav)return;nav.innerHTML='';allIds().filter(n=>pOf(n)===S.passage).forEach(n=>{const b=document.createElement('button');b.className='qbtn';b.textContent=n;b.dataset.q=n;b.addEventListener('click',()=>goToQ(n));nav.appendChild(b)});refreshFooter()}
+function refreshFooter(){
+  document.querySelectorAll('.qbtn').forEach(b=>{const n=Number(b.dataset.q);b.classList.toggle('answered',isAns(n));b.classList.toggle('active',n===S.question)});
+  const cells=document.querySelectorAll('.part-cell.collapsed');let idx=0;
+  [1,2,3].forEach(p=>{if(p===S.passage)return;const cell=cells[idx++];if(!cell)return;const ids=allIds().filter(n=>pOf(n)===p);cell.querySelector('.pc-count').textContent=ids.filter(isAns).length+' of '+ids.length});
+  if(S.submitted)document.querySelectorAll('.qbtn').forEach(b=>{const n=Number(b.dataset.q);b.classList.toggle('res-correct',chk(n));b.classList.toggle('res-wrong',!chk(n))});
+}
+function switchP(pid){saveP();S.passage=pid;renderP(pid);renderQs(pid);const f=allIds().filter(n=>pOf(n)===pid)[0];if(f)S.question=f;renderPartsBar();updateNav()}
+function goToQ(n){const p=pOf(n);if(p!==S.passage){saveP();S.passage=p;renderP(p);renderQs(p);renderPartsBar()}S.question=n;refreshFooter();updateNav();const el=$('qi-'+n)||document.querySelector('[data-q="'+n+'"]')||document.querySelector('[data-blk="'+n+'"]');if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),50)}
+function nextQ(){const ids=allIds();const idx=ids.indexOf(S.question);if(idx<ids.length-1)goToQ(ids[idx+1]);else showReview()}
+function updateNav(){const last=allIds().slice(-1)[0];$('nextBtn').disabled=(S.question>=last&&S.submitted)}
 
-function storeHighlight(regionId, h){
-  const s = getStored();
-  s[regionId] = s[regionId] || [];
-  s[regionId].push(h);
-  s[regionId].sort((a,b)=> a.start-b.start);
-  setStored(s);
-}
-function clearHighlightAt(span){
-  const region = findRegion(span);
-  if(!region) return;
-  const text = span.textContent;
-  // Recompute its start/end by finding the span in DOM text walk
-  // Simpler: unwrap span then re-serialize that region from DOM
-  const parent = span.parentNode;
-  while(span.firstChild) parent.insertBefore(span.firstChild, span);
-  parent.removeChild(span);
-  parent.normalize();
-  reSerializeRegion(region);
-}
-function reSerializeRegion(region){
-  const s = getStored();
-  const arr = [];
-  const walker = document.createTreeWalker(region, NodeFilter.SHOW_ELEMENT, {
-    acceptNode(n){ return n.classList && n.classList.contains("hl") ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP; }
-  });
-  // Compute offsets for each hl span by counting text
-  const hls = []; let cur;
-  while((cur = walker.nextNode())){ hls.push(cur); }
-  hls.forEach(span => {
-    // start = char count of preceding text in region (excluding spans following it)
-    const r = document.createRange();
-    r.setStart(region, 0);
-    r.setEndBefore(span);
-    const before = r.toString().length;
-    const mid = span.textContent.length;
-    arr.push({start: before, end: before+mid, color: span.dataset.color || "y", note: span.dataset.note || ""});
-  });
-  if(arr.length) s[region.dataset.hlId] = arr; else delete s[region.dataset.hlId];
-  setStored(s);
-}
-function restoreHighlightsInZones(){
-  const s = getStored();
-  ["#passage-panel","#questions-panel"].forEach(sel => {
-    $$(sel + " [data-hl-id]").forEach(region => {
-      const arr = s[region.dataset.hlId];
-      if(!arr || !arr.length) return;
-      // Apply from end to start to keep offsets stable
-      const sorted = arr.slice().sort((a,b)=> b.start-a.start);
-      sorted.forEach(h => applyHighlightToRegion(region, h.start, h.end, h.color, h.note));
-    });
-  });
-}
+/* highlighter */
+function hlRoot(node){if(!node)return null;const el=node.nodeType===Node.TEXT_NODE?node.parentElement:node;if(!el||el.closest('input,textarea,select,button,.hl-pop,.topbar,.footer,.settings,.modal'))return null;return el.closest('#pbody,#qbody')}
+function hideHLPop(){const pop=$('hlPop');if(pop)pop.classList.remove('show');S.hlRange=null;S.hlMark=null}
+function posHLPop(rect){const pop=$('hlPop');if(!pop||!rect)return;pop.classList.add('show');const top=Math.max(8,rect.top-pop.offsetHeight-8);const left=Math.min(window.innerWidth-pop.offsetWidth-8,Math.max(8,rect.left+(rect.width-pop.offsetWidth)/2));pop.style.top=top+'px';pop.style.left=left+'px'}
+function showSelectionHL(){const sel=window.getSelection();if(!sel||sel.isCollapsed||!sel.toString().trim()){hideHLPop();return}const range=sel.getRangeAt(0),root=hlRoot(range.commonAncestorContainer);if(!root){hideHLPop();return}S.hlRange=range.cloneRange();S.hlMark=null;$('hlApply').style.display='inline-block';$('hlRemove').style.display='none';posHLPop(range.getBoundingClientRect())}
+function showRemoveHL(mark){S.hlRange=null;S.hlMark=mark;$('hlApply').style.display='none';$('hlRemove').style.display='inline-block';posHLPop(mark.getBoundingClientRect())}
+function unwrapHL(mark){const p=mark.parentNode;if(!p)return;while(mark.firstChild)p.insertBefore(mark.firstChild,mark);p.removeChild(mark);p.normalize();saveP()}
+function highlightRange(range){const root=hlRoot(range.commonAncestorContainer);if(!root)return;const nodes=[];const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(node){if(!node.nodeValue.trim()||node.parentElement.closest('mark.uhl,input,textarea,select,button,.hl-pop'))return NodeFilter.FILTER_REJECT;return range.intersectsNode(node)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT}});while(walker.nextNode())nodes.push(walker.currentNode);nodes.reverse().forEach(node=>{const start=node===range.startContainer?range.startOffset:0;const end=node===range.endContainer?range.endOffset:node.nodeValue.length;if(start>=end)return;const seg=node.splitText(start);seg.splitText(end-start);const mark=document.createElement('mark');mark.className='uhl';seg.parentNode.insertBefore(mark,seg);mark.appendChild(seg)});window.getSelection().removeAllRanges();saveP()}
+$('hlApply').addEventListener('mousedown',e=>e.preventDefault());
+$('hlRemove').addEventListener('mousedown',e=>e.preventDefault());
+$('hlApply').addEventListener('click',()=>{if(S.hlRange)highlightRange(S.hlRange);hideHLPop()});
+$('hlRemove').addEventListener('click',()=>{if(S.hlMark)unwrapHL(S.hlMark);hideHLPop()});
+document.addEventListener('mouseup',function(e){const mark=e.target.closest&&e.target.closest('mark.uhl');if(mark){showRemoveHL(mark);return}setTimeout(showSelectionHL,0)});
+document.addEventListener('mousedown',function(e){if(!e.target.closest||(!e.target.closest('.hl-pop')&&!e.target.closest('mark.uhl')))hideHLPop()});
+document.addEventListener('scroll',hideHLPop,true);
 
-/* selection toolbar */
-function positionToolbar(rect){
-  const tb = $("#hl-toolbar");
-  tb.classList.add("on");
-  const tbw = tb.offsetWidth || 180, tbh = tb.offsetHeight || 36;
-  const left = Math.max(8, Math.min(window.innerWidth - tbw - 8, rect.left + rect.width/2 - tbw/2));
-  const top  = Math.max(8, rect.top - tbh - 6) + window.scrollY;
-  tb.style.left = left + "px";
-  tb.style.top = (rect.top - tbh - 6 < 0 ? rect.bottom + 6 : rect.top - tbh - 6) + window.scrollY + "px";
-}
-function hideToolbar(){ $("#hl-toolbar").classList.remove("on"); }
-function showCtxMenu(x, y, info){
-  const m = $("#ctxmenu");
-  m.innerHTML = "";
-  const mk = (label, act, color="") => {
-    const b = document.createElement("button"); b.type="button";
-    b.innerHTML = (color?`<span class="dot" style="background:var(--hl-${color})"></span>`:"") + label;
-    b.addEventListener("click", e => { e.preventDefault(); ctxAction(act, color, info); m.classList.remove("on"); });
-    m.appendChild(b);
-  };
-  if(info.kind === "selection"){
-    mk("Highlight yellow","hl","y"); mk("Highlight green","hl","g"); mk("Highlight pink","hl","p");
-    mk("Add note","note");
-    mk("Cancel","cancel");
-  } else if(info.kind === "hl"){
-    mk("Change to yellow","hl","y"); mk("Change to green","hl","g"); mk("Change to pink","hl","p");
-    mk("Edit note","note");
-    mk("Remove highlight","clear");
-  }
-  m.style.left = Math.min(window.innerWidth - 200, x) + "px";
-  m.style.top = (y + window.scrollY) + "px";
-  m.classList.add("on");
-}
-function ctxAction(act, color, info){
-  if(act === "cancel"){ hideToolbar(); return; }
-  if(info.kind === "selection"){
-    if(act === "hl"){ applyAndStore(info, color, ""); }
-    else if(act === "note"){
-      openNotePopover({mode:"new", info, color: color||"y"});
-    }
-  } else if(info.kind === "hl"){
-    const span = info.span;
-    const region = findRegion(span);
-    if(act === "hl"){
-      span.className = "hl " + (HL_COLORS[color]||"hl-y") + (span.dataset.note?" hl-note":"");
-      span.dataset.color = color;
-      reSerializeRegion(region);
-    } else if(act === "note"){
-      openNotePopover({mode:"edit", span});
-    } else if(act === "clear"){
-      clearHighlightAt(span);
-    }
-  }
-  hideToolbar();
-}
-
-function applyAndStore(info, color, note){
-  const offs = rangeToOffsets(info.range, info.region);
-  if(!offs) return;
-  applyHighlightToRegion(info.region, offs.start, offs.end, color, note);
-  reSerializeRegion(info.region);
-  window.getSelection()?.removeAllRanges();
-  hideToolbar();
-}
-
-document.addEventListener("mouseup", e => {
-  // ignore mouseups originating in the toolbar/menu/popover
-  if(e.target.closest("#hl-toolbar,#ctxmenu,#note-pop,#modal")) return;
-  setTimeout(()=>{
-    const info = selectionInsideRegion();
-    if(!info){ hideToolbar(); lastSelectionInfo = null; return; }
-    const rect = info.range.getBoundingClientRect();
-    if(!rect || (rect.width===0 && rect.height===0)){ hideToolbar(); return; }
-    lastSelectionInfo = info;
-    positionToolbar(rect);
-  }, 0);
-});
-document.addEventListener("touchend", e => {
-  if(e.target.closest("#hl-toolbar,#ctxmenu,#note-pop,#modal")) return;
-  setTimeout(()=>{
-    const info = selectionInsideRegion();
-    if(!info){ hideToolbar(); return; }
-    const rect = info.range.getBoundingClientRect();
-    lastSelectionInfo = info;
-    positionToolbar(rect);
-  }, 20);
-});
-document.addEventListener("mousedown", e => {
-  if(!e.target.closest("#hl-toolbar,#ctxmenu,#note-pop")) {
-    // only hide toolbar when clicking outside
-    if(!window.getSelection() || window.getSelection().isCollapsed){
-      // delay so toolbar buttons still work
-      setTimeout(hideToolbar, 0);
-    }
-  }
-  $("#ctxmenu").classList.remove("on");
-});
-$("#hl-toolbar").addEventListener("click", e => {
-  const b = e.target.closest("button"); if(!b) return;
-  const act = b.dataset.act, color = b.dataset.color || "y";
-  if(!lastSelectionInfo) return;
-  if(act === "hl") applyAndStore(lastSelectionInfo, color, "");
-  else if(act === "note") openNotePopover({mode:"new", info:lastSelectionInfo, color:"y"});
-  else if(act === "clear"){
-    // clear any hl spans inside the selection
-    const frag = lastSelectionInfo.range.cloneContents();
-    if(frag.querySelector(".hl")){
-      // Walk highlights inside the range and unwrap
-      const startReg = lastSelectionInfo.region;
-      const hls = [...startReg.querySelectorAll(".hl")];
-      hls.forEach(span => {
-        const r2 = document.createRange();
-        r2.selectNodeContents(span);
-        if(lastSelectionInfo.range.compareBoundaryPoints(Range.END_TO_START, r2) <= 0 &&
-           lastSelectionInfo.range.compareBoundaryPoints(Range.START_TO_END, r2) >= 0){
-          // partial overlap is fine — unwrap whole span
-          const parent = span.parentNode;
-          while(span.firstChild) parent.insertBefore(span.firstChild, span);
-          parent.removeChild(span);
-          parent.normalize();
-        }
-      });
-      reSerializeRegion(startReg);
-    }
-    hideToolbar();
-  }
-});
-
-// Right-click on selection or highlight => custom menu
-document.addEventListener("contextmenu", e => {
-  // selection?
-  const info = selectionInsideRegion();
-  if(info){
-    e.preventDefault();
-    lastSelectionInfo = info;
-    showCtxMenu(e.clientX, e.clientY, {kind:"selection"});
-    return;
-  }
-  // existing hl?
-  const span = e.target.closest && e.target.closest(".hl");
-  if(span){
-    e.preventDefault();
-    showCtxMenu(e.clientX, e.clientY, {kind:"hl", span});
-  }
-});
-
-// Click on hl marker — show note popover for edit
-document.addEventListener("click", e => {
-  const span = e.target.closest && e.target.closest(".hl");
-  if(span && !e.target.closest("#hl-toolbar,#ctxmenu,#note-pop")){
-    if(e.button === 0){
-      // single-click on highlight opens note popover
-      openNotePopover({mode:"edit", span});
-    }
-  }
-});
-
-/* Note popover */
-function openNotePopover(opts){
-  const pop = $("#note-pop");
-  const ta = $("#noteText");
-  let target = null;
-  if(opts.mode === "edit"){
-    target = opts.span;
-    ta.value = target.dataset.note || "";
-    placeAtRect(pop, target.getBoundingClientRect());
-  } else if(opts.mode === "new"){
-    // create empty highlight first
-    const info = opts.info;
-    const offs = rangeToOffsets(info.range, info.region);
-    if(!offs) return;
-    applyHighlightToRegion(info.region, offs.start, offs.end, opts.color, "");
-    reSerializeRegion(info.region);
-    window.getSelection()?.removeAllRanges();
-    // find the newly created span
-    const hls = info.region.querySelectorAll(".hl");
-    target = hls[hls.length-1];
-    if(!target) return;
-    ta.value = "";
-    placeAtRect(pop, target.getBoundingClientRect());
-  }
-  pop.classList.add("on");
-  $("#noteSave").onclick = () => {
-    target.dataset.note = ta.value;
-    target.title = ta.value;
-    target.classList.toggle("hl-note", !!ta.value);
-    reSerializeRegion(findRegion(target));
-    pop.classList.remove("on");
-  };
-  $("#noteDel").onclick = () => {
-    delete target.dataset.note;
-    target.title = "";
-    target.classList.remove("hl-note");
-    reSerializeRegion(findRegion(target));
-    pop.classList.remove("on");
-  };
-  $("#noteCancel").onclick = () => { pop.classList.remove("on"); };
-}
-function placeAtRect(pop, rect){
-  pop.style.left = Math.max(8, Math.min(window.innerWidth - 260, rect.left)) + "px";
-  pop.style.top = (rect.bottom + 4 + window.scrollY) + "px";
-}
-
-/* clear all */
-$("#clearAll").addEventListener("click", () => {
-  confirmDialog("Remove ALL highlights and notes?", () => {
-    setStored({});
-    [...document.querySelectorAll(".hl")].forEach(span => {
-      const parent = span.parentNode;
-      while(span.firstChild) parent.insertBefore(span.firstChild, span);
-      parent.removeChild(span);
-      parent && parent.normalize && parent.normalize();
-    });
-    flashToast("All highlights cleared.");
-  });
-});
-
-/* ============================================================
-   SUBMIT / RESULTS / REVIEW
-   ============================================================ */
-function gradeAll(){
-  let correct = 0;
-  // gather all answerable qids
-  const counted = new Set();
-  ITEMS.forEach(it => {
-    if(counted.has(it.id)) return;
-    counted.add(it.id);
-    if(it.group.type === "mcq_multi"){
-      // single grade for the group; counts for each slot
-      const ok = isCorrect(it.group.ids[0]);
-      it.group.ids.forEach(id => counted.add(id));
-      if(ok) correct += it.group.ids.length;
-    } else {
-      if(isCorrect(it.id)) correct += 1;
-    }
-  });
-  return correct;
-}
-function bandFor(score){
-  if(score>=39) return 9.0;
-  if(score>=37) return 8.5;
-  if(score>=35) return 8.0;
-  if(score>=33) return 7.5;
-  if(score>=30) return 7.0;
-  if(score>=27) return 6.5;
-  if(score>=23) return 6.0;
-  if(score>=19) return 5.5;
-  if(score>=15) return 5.0;
-  if(score>=13) return 4.5;
-  if(score>=10) return 4.0;
-  if(score>=8) return 3.5;
-  if(score>=6) return 3.0;
-  if(score>=4) return 2.5;
-  return 2.0;
-}
-function submit(timesUp){
-  if(state.submitted){ openResultsModal(timesUp); return; }
-  if(!timesUp){
-    const unanswered = ITEMS.filter(it => !isAnswered(it.id)).length;
-    confirmDialog(`Submit all? ${unanswered ? unanswered+" unanswered." : "All answered."}`, () => doSubmit(false));
-    return;
-  }
-  doSubmit(true);
-}
-function doSubmit(timesUp){
-  state.submitted = true;
-  if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
-  saveState();
-  renderPalette();
-  openResultsModal(timesUp);
-}
-function openResultsModal(timesUp){
-  const score = gradeAll();
-  const band = bandFor(score);
-  const m = $("#modal");
-  m.innerHTML = `
-    <div class="modal-card">
-      <h2>Results${timesUp ? " · Time up":""}</h2>
-      <div class="meta">${TEST_DATA.title}</div>
-      <div class="score"><div class="big">${score}/40</div><div class="band">Estimated band ${band.toFixed(1)}</div></div>
-      <div class="meta">Approximate Academic Reading band; actual exam bands may vary.</div>
-      <div class="actions">
-        <button class="tool" id="closeModal">Close</button>
-        <button class="tool primary" id="reviewBtn">Review answers</button>
-      </div>
-    </div>`;
-  m.classList.add("on");
-  $("#closeModal").onclick = () => m.classList.remove("on");
-  $("#reviewBtn").onclick = () => { m.classList.remove("on"); enterReviewMode(); };
-}
-function enterReviewMode(){
-  // Re-render questions of all parts with marks shown
-  showMarks();
-  flashToast("Review mode: ✓/✗ shown; correct answers revealed.");
-}
-function showMarks(){
-  // Re-render current part with marks
-  renderQuestions();
-  // Then walk DOM to populate marks
-  $$("[data-mark-for]").forEach(sp => {
-    const qid = parseInt(sp.dataset.markFor,10);
-    const item = itemForId(qid);
-    if(!item) return;
-    const g = item.group;
-    sp.classList.remove("hide");
-    let ok = false;
-    if(g.type === "mcq_multi"){
-      ok = isCorrect(g.ids[0]);
-    } else {
-      ok = isCorrect(qid);
-    }
-    const ans = state.answers[qid];
-    const isBlank = !isAnswered(qid);
-    if(isBlank){ sp.className = "q-mark blank"; sp.textContent = "—"; }
-    else if(ok){ sp.className = "q-mark ok"; sp.textContent = "✓"; }
-    else { sp.className = "q-mark bad"; sp.textContent = "✗"; }
-    // append correct answer text underneath
-    let correctText = "";
-    if(g.type === "mcq_multi"){ correctText = (g.answer||[]).join(", "); }
-    else if(g.items){
-      const it = g.items.find(x=>x.id===qid);
-      correctText = Array.isArray(it?.answer) ? it.answer.join(" / ") : (it?.answer||"");
-    } else if(g.lines){
-      const ln = g.lines.find(l => typeof l==="object" && l.id===qid);
-      correctText = Array.isArray(ln?.answer) ? ln.answer.join(" / ") : (ln?.answer||"");
-    } else if(g.segments){
-      const seg = g.segments.find(s=>s && s.gap===qid);
-      correctText = Array.isArray(seg?.answer) ? seg.answer.join(" / ") : (seg?.answer||"");
-    }
-    if(!ok){
-      const row = sp.parentNode;
-      const c = document.createElement("div"); c.className = "q-correct";
-      c.innerHTML = `<b>Correct:</b> ${escapeHtml(correctText)}`;
-      row.appendChild(c);
-      const y = document.createElement("div"); y.className = "q-yours";
-      y.innerHTML = `<b>Your answer:</b> ${escapeHtml(isBlank ? "(blank)" : (g.type==="mcq_multi" ? (state.mcqMulti["mcq_"+g.range]||[]).join(", ") : String(ans||"")))}`;
-      row.appendChild(y);
-    }
-  });
-  restoreHighlightsInZones();
-}
-
-/* ============================================================
-   CONFIRM + TOAST
-   ============================================================ */
-function confirmDialog(msg, onYes){
-  const m = $("#modal");
-  m.innerHTML = `
-    <div class="modal-card confirm">
-      <h2>Confirm</h2>
-      <div class="meta">${escapeHtml(msg)}</div>
-      <div class="actions">
-        <button class="tool" id="cNo">Cancel</button>
-        <button class="tool primary" id="cYes">Yes</button>
-      </div>
-    </div>`;
-  m.classList.add("on");
-  $("#cNo").onclick = () => m.classList.remove("on");
-  $("#cYes").onclick = () => { m.classList.remove("on"); onYes && onYes(); };
-}
-function flashToast(msg){
-  const t = $("#toast"); t.textContent = msg; t.classList.add("on");
-  clearTimeout(flashToast._tm); flashToast._tm = setTimeout(()=> t.classList.remove("on"), 1800);
-}
-
-/* ============================================================
-   HEADER ACTIONS
-   ============================================================ */
-$$("#topbar [data-size]").forEach(b => b.addEventListener("click", ()=>{ ui.size = b.dataset.size; saveUI(); applyUI(); }));
-$$("#topbar [data-theme]").forEach(b => b.addEventListener("click", ()=>{ ui.theme = b.dataset.theme; saveUI(); applyUI(); }));
-$("#timerToggle").addEventListener("click", ()=>{ ui.timerHidden = !ui.timerHidden; saveUI(); applyUI(); });
-$("#resetBtn").addEventListener("click", ()=>{
-  confirmDialog("Reset all answers, highlights and timer for this test?", ()=>{
-    Object.assign(state, defaultState());
-    saveState(); setStored({});
-    renderTabs(); setPart(0); renderPalette();
-    startTimer();
-    flashToast("Test reset.");
-  });
-});
-$("#submitBtn").addEventListener("click", ()=> submit(false));
-$("#prevBtn").addEventListener("click", prev);
-$("#nextBtn").addEventListener("click", next);
-$("#mobileSwitch").addEventListener("click", ()=>{
-  const sp = $("#split");
-  const showing = sp.classList.contains("show-questions");
-  sp.classList.toggle("show-questions", !showing);
-  sp.classList.toggle("show-passage", showing);
-  $("#mobileSwitch").textContent = showing ? "Show Questions" : "Show Passage";
-});
-
-/* Divider drag */
-(() => {
-  const d = $("#divider"); let dragging=false;
-  d.addEventListener("mousedown", e => { dragging=true; d.classList.add("dragging"); e.preventDefault(); });
-  window.addEventListener("mousemove", e => {
-    if(!dragging) return;
-    const main = $("#split").getBoundingClientRect();
-    const pct = ((e.clientX - main.left) / main.width) * 100;
-    ui.dividerPct = Math.max(20, Math.min(80, pct));
-    applyDivider();
-  });
-  window.addEventListener("mouseup", () => { if(dragging){ dragging=false; d.classList.remove("dragging"); saveUI(); } });
+/* resizer */
+(function(){const rszr=$('rszr'),left=document.querySelector('.pp'),right=document.querySelector('.qp');let x0,lw;
+  rszr.addEventListener('pointerdown',e=>{x0=e.clientX;lw=left.getBoundingClientRect().width;rszr.classList.add('dragging');rszr.setPointerCapture(e.pointerId);document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up)});
+  function mv(e){const dx=e.clientX-x0,total=left.parentElement.getBoundingClientRect().width-rszr.getBoundingClientRect().width,nw=Math.min(Math.max(lw+dx,240),total-240);left.style.flex='none';left.style.width=nw+'px';right.style.flex='1'}
+  function up(e){rszr.classList.remove('dragging');try{rszr.releasePointerCapture(e.pointerId)}catch(_e){}document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up)}
 })();
 
-window.addEventListener("resize", applyDivider);
-
-/* ============================================================
-   INIT
-   ============================================================ */
-function init(){
-  $("#testTitle").textContent = TEST_DATA.title;
-  document.title = TEST_DATA.title;
-  applyUI();
-  renderTabs();
-  setPart(state.currentPart || 0);
-  if(!state.currentQid) state.currentQid = ITEMS[0]?.id || 1;
-  renderPalette();
-  startTimer();
-  if(state.submitted){ showMarks(); }
+/* review */
+function showReview(){
+  saveP();const ids=allIds();const ans=ids.filter(isAns).length,unans=ids.length-ans;
+  $('rev-stats').innerHTML='<div class="rev-stat g"><strong>'+ans+'</strong><span>Answered</span></div><div class="rev-stat o"><strong>'+unans+'</strong><span>Unanswered</span></div><div class="rev-stat n"><strong>'+ids.length+'</strong><span>Total</span></div>';
+  let html='';[1,2,3].forEach(p=>{html+='<div class="rev-sec"><div class="rev-plbl">Passage '+p+' \u2014 '+esc(PD(p).title)+'</div><div class="rev-grid">';ids.filter(n=>pOf(n)===p).forEach(n=>{html+='<div class="rqt '+(isAns(n)?'ans':'unans')+'" onclick="revGoQ('+n+')" title="Q'+n+'">'+n+'</div>'});html+='</div></div>'});
+  $('rev-passes').innerHTML=html;showScreen('screen-review');
 }
-init();
+function backToTest(){showScreen('screen-test');renderP(S.passage);renderQs(S.passage);renderPartsBar();updateNav()}
+function revGoQ(n){showScreen('screen-test');const p=pOf(n);S.passage=p;renderP(p);renderQs(p);S.question=n;renderPartsBar();updateNav();setTimeout(()=>{const el=$('qi-'+n)||document.querySelector('[data-q="'+n+'"]');if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'})},100)}
+function showSubModal(){const ids=allIds();const u=ids.filter(n=>!isAns(n)).length;$('modal-p').textContent=u>0?'You have '+u+' unanswered question'+(u!==1?'s':'')+'. They will be marked incorrect. Once you submit, your answers are locked \u2014 you can still review your mistakes afterwards.':'All questions answered. Once you submit, your answers are locked \u2014 you can still review your mistakes afterwards.';$('modal').classList.add('show')}
+function closeModal(){$('modal').classList.remove('show')}
+function submitTest(){closeModal();clearInterval(S.timerInt);window.removeEventListener('beforeunload',warnL);S.endTime=Date.now();showResults()}
 
+/* answer checking */
+function normalize(s){return String(s==null?'':s).trim().toLowerCase().replace(/\s+/g,' ').replace(/^(a|an|the)\s+/,'').replace(/[.,;:!?'"()]/g,'').replace(/our\b/g,'or').replace(/ise\b/g,'ize').replace(/isation\b/g,'ization').replace(/re\b/g,'er').replace(/ll/g,'l')}
+function chk(n){
+  const key=ANSWERS[n];if(key==null)return false;
+  if(multiBlockFor(n)){const blk=multiBlockFor(n);const cs=new Set();for(let k=blk.from;k<=blk.to;k++)cs.add(String(ANSWERS[k]||'').toUpperCase());const gs=new Set();for(let k=blk.from;k<=blk.to;k++){const a=S.answers[k];if(a)gs.add(String(a).toUpperCase())}return gs.size===cs.size&&[...gs].every(x=>cs.has(x))}
+  const q=QUESTIONS.find(x=>x.id===n);
+  const isLetter=q&&['mcq','info','heads','ends'].includes(q.type);
+  const user=S.answers[n];
+  if(isLetter)return String(user||'').toUpperCase()===String(key).toUpperCase();
+  const alts=String(key).split('/').map(normalize);
+  return alts.includes(normalize(user));
+}
+
+function showResults(){
+  S.submitted=true;const ids=allIds();let score=0;ids.forEach(n=>{if(chk(n))score++});
+  const bandV=getBand(score);
+  const taken=S.endTime?Math.floor((S.endTime-S.startTime)/1000):3600-S.timerSecs;
+  const tm=String(Math.floor(taken/60)).padStart(2,'0'),ts=String(taken%60).padStart(2,'0');
+  let pcards='';[1,2,3].forEach(p=>{const pn=ids.filter(n=>pOf(n)===p);const ps=pn.filter(chk).length;pcards+='<div class="pcard"><div class="pcardn">Passage '+p+'</div><strong>'+ps+'</strong><span class="of"> / '+pn.length+'</span></div>'});
+  let rows='';[1,2,3].forEach(p=>{ids.filter(n=>pOf(n)===p).forEach(n=>{const ok=chk(n);const ua=S.answers[n];const ustr=Array.isArray(ua)?ua.join(', '):(ua||'');rows+='<div class="ans-row '+(ok?'correct':'wrong')+'"><strong>Q'+n+'</strong><span>'+(ustr?'Your answer: <strong>'+esc(ustr)+'</strong>':'<span class="muted">No answer</span>')+'</span><span>Correct: <strong>'+esc(ANSWERS[n])+'</strong></span><span class="tick '+(ok?'g':'b')+'">'+(ok?'\u2713':'\u2717')+'</span></div>'})});
+  $('resultsContent').innerHTML='<h1 style="color:var(--navy);margin-bottom:16px">Reading Test Results</h1>'+
+    '<div class="score-hero"><div class="band-card"><span>Band Score</span><div class="band">'+bandV+'</div></div>'+
+    '<div class="stats"><div class="stat">Raw score<strong>'+score+' / '+ids.length+'</strong></div><div class="stat">Time taken<strong>'+tm+':'+ts+'</strong></div><div class="stat">Passages<strong>3</strong></div><div class="stat">Questions<strong>'+ids.length+'</strong></div></div></div>'+
+    '<div class="pcards">'+pcards+'</div>'+
+    '<h2 style="color:var(--navy)">Full Answer Review</h2><div class="ans-review">'+rows+'</div>'+
+    '<div class="action-row" style="margin-top:24px"><button class="btn" onclick="reviewTest()">Review Test &amp; Passages</button><button class="btn primary" onclick="restart()">Restart</button></div>';
+  showScreen('screen-results');
+}
+function getBand(raw){for(const[lo,hi,b]of BANDS)if(raw>=lo&&raw<=hi)return b;return'2.0'}
+const BANDS=[[39,40,'9.0'],[37,38,'8.5'],[35,36,'8.0'],[33,34,'7.5'],[30,32,'7.0'],[27,29,'6.5'],[23,26,'6.0'],[19,22,'5.5'],[15,18,'5.0'],[13,14,'4.5'],[10,12,'4.0'],[8,9,'3.5'],[6,7,'3.0'],[4,5,'2.5'],[0,3,'2.0']];
+
+function reviewTest(){showScreen('screen-test');$('checkBtn').style.display='none';renderP(S.passage);renderQs(S.passage);renderPartsBar();markReviewColours()}
+function markReviewColours(){
+  document.querySelectorAll('#qbody input,#qbody select').forEach(el=>el.disabled=true);
+  allIds().filter(n=>pOf(n)===S.passage).forEach(n=>{
+    const ok=chk(n);
+    const gi=document.querySelector('.gap-input[data-q="'+n+'"]');if(gi)gi.classList.add(ok?'good':'bad');
+    const ai=document.querySelector('.ainput[data-q="'+n+'"]');if(ai)ai.classList.add(ok?'good':'bad');
+    const se=document.querySelector('.hsel[data-q="'+n+'"]');if(se)se.classList.add(ok?'good':'bad');
+    const bl=document.querySelector('.blank[data-blk="'+n+'"]');if(bl)bl.classList.add(ok?'good':'bad');
+    const chosen=document.querySelector('input[name="q'+n+'"]:checked');if(chosen){const l=chosen.closest('.olbl');if(l)l.classList.add(ok?'good':'bad')}
+    if(!ok){const host=document.querySelector('.gap-input[data-q="'+n+'"],.ainput[data-q="'+n+'"],.hsel[data-q="'+n+'"],.blank[data-blk="'+n+'"]');if(host&&host.parentNode&&!host.parentNode.querySelector('.corr')){const tag=document.createElement('span');tag.className='corr';tag.textContent='\u2713 '+ANSWERS[n];host.insertAdjacentElement('afterend',tag)}}
+  });
+  QUESTIONS.filter(q=>q.type==='multi').forEach(q=>{const correct=[];for(let k=q.from;k<=q.to;k++)correct.push(String(ANSWERS[k]||'').toUpperCase());document.querySelectorAll('input[name="m'+q.from+'-'+q.to+'"]').forEach(c=>{const l=c.closest('.olbl');if(c.checked)l.classList.add(correct.includes(c.value.toUpperCase())?'good':'bad');else if(correct.includes(c.value.toUpperCase()))l.classList.add('good')})});
+}
+
+/* settings */
+function applyScale(f,l){document.documentElement.style.setProperty('--font-scale',f);document.documentElement.style.setProperty('--line-scale',l)}
+function applyTheme(t){document.body.classList.remove('theme-dark','theme-sepia');if(t==='dark')document.body.classList.add('theme-dark');if(t==='sepia')document.body.classList.add('theme-sepia');document.querySelectorAll('.swatch').forEach(s=>s.classList.toggle('active',s.dataset.theme===t))}
+$('setToggle').addEventListener('click',()=>$('settings').classList.toggle('open'));
+$('setClose').addEventListener('click',()=>$('settings').classList.remove('open'));
+$('fontScale').addEventListener('input',e=>applyScale(e.target.value,$('lineScale').value));
+$('lineScale').addEventListener('input',e=>applyScale($('fontScale').value,e.target.value));
+$('setReset').addEventListener('click',()=>{$('fontScale').value=1;$('lineScale').value=1;applyScale(1,1);applyTheme('light')});
+document.querySelectorAll('.swatch').forEach(s=>s.addEventListener('click',()=>applyTheme(s.dataset.theme)));
+$('resetAnswers').addEventListener('click',()=>{if(S.submitted)return;if(confirm('Reset all your answers?')){S.answers={};renderQs(S.passage);renderPartsBar();$('settings').classList.remove('open')}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('settings').classList.remove('open')});
+
+/* fullscreen */
+(function(){const btn=$('fsBtn'),path=$('fsPath');
+  const ENTER="M1.5 1h4a.5.5 0 0 1 0 1H2v3.5a.5.5 0 0 1-1 0v-4a.5.5 0 0 1 .5-.5zm9 0h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V2h-3.5a.5.5 0 0 1 0-1zm-9 9a.5.5 0 0 1 .5.5V14h3.5a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5v-4a.5.5 0 0 1 .5-.5zm13 0a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1 0-1H14v-3.5a.5.5 0 0 1 .5-.5z";
+  const EXIT="M5.5 0a.5.5 0 0 1 .5.5v4A.5.5 0 0 1 5.5 5h-4a.5.5 0 0 1 0-1H5V.5a.5.5 0 0 1 .5-.5zm5 0a.5.5 0 0 1 .5.5V4h3.5a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 10 4.5v-4a.5.5 0 0 1 .5-.5zM0 10.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V11H.5a.5.5 0 0 1-.5-.5zm10 0a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5.5.5 0 0 1-.5.5H11v3.5a.5.5 0 0 1-1 0v-4z";
+  function upd(){path.setAttribute('d',document.fullscreenElement?EXIT:ENTER);btn.title=document.fullscreenElement?'Exit fullscreen':'Fullscreen'}
+  btn.addEventListener('click',()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen().catch(()=>{})});
+  document.addEventListener('fullscreenchange',upd);
+})();
+function restart(){location.reload()}
+
+/* smoke tests (console only) */
+(function(){const out=[];const A=(n,c)=>out.push({n,c:!!c});const ids=allIds();
+  A('40 ids',ids.length===40);A('1..40 no gaps',ids[0]===1&&ids[39]===40&&ids.every((v,i)=>v===i+1));
+  A('answers=40',Object.keys(ANSWERS).length===40);
+  let missing=[];for(let i=1;i<=40;i++)if(ANSWERS[i]===undefined)missing.push(i);A('all answers present',missing.length===0);
+  A('3 passages',Object.keys(PASSAGES).length===3);
+  const ends=QUESTIONS.filter(q=>q.type==='ends');A('ends<=endings',ends.length<=ENDINGS.length);
+  const fail=out.filter(o=>!o.c);if(fail.length)console.error('READING SMOKE FAIL',fail,'missing',missing);else console.info('Reading smoke passed ('+out.length+' checks)');
 })();
 </script>
 </body>
