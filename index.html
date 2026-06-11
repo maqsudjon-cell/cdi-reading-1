@@ -398,7 +398,11 @@ function renderTimer(){const m=String(Math.floor(Math.abs(S.timerSecs)/60)).padS
 document.addEventListener('visibilitychange',syncTimer);
 window.addEventListener('focus',syncTimer);
 
-function saveP(){S.phtml[S.passage]=$('pbody').innerHTML}
+/* ---------- session persistence (survives reload / tab discard) ---------- */
+const PKEY='cdiReadingState:'+location.pathname;
+function persist(){try{if(!S.deadline)return;if(S.submitted){localStorage.removeItem(PKEY);return}var sc=document.getElementById('screen-test'),pb=document.getElementById('pbody');if(sc&&sc.classList.contains('active')&&pb&&pb.innerHTML)S.phtml[S.passage]=pb.innerHTML;localStorage.setItem(PKEY,JSON.stringify({v:1,answers:S.answers,phtml:S.phtml,deadline:S.deadline,startTime:S.startTime,passage:S.passage,question:S.question,testType:S.testType}))}catch(e){}}
+function clearPersist(){try{localStorage.removeItem(PKEY)}catch(e){}}
+function saveP(){S.phtml[S.passage]=$('pbody').innerHTML;persist()}
 function renderP(id){$('pbody').innerHTML=S.phtml[id]||PD(id).html;$('pp-title').textContent='Passage '+id;$('pp-qr').textContent=PD(id).qr}
 
 function renderQs(pid){
@@ -573,7 +577,7 @@ function submitTest(){closeModal();clearInterval(S.timerInt);window.removeEventL
 function normalize(s){return String(s==null?'':s).trim().toLowerCase().replace(/\s+/g,' ').replace(/^(a|an|the)\s+/,'').replace(/[.,;:!?'"()]/g,'').replace(/our\b/g,'or').replace(/ise\b/g,'ize').replace(/isation\b/g,'ization').replace(/re\b/g,'er').replace(/ll/g,'l')}
 function chk(n){
   const key=ANSWERS[n];if(key==null)return false;
-  if(multiBlockFor(n)){const blk=multiBlockFor(n);const cs=new Set();for(let k=blk.from;k<=blk.to;k++)cs.add(String(ANSWERS[k]||'').toUpperCase());const gs=new Set();for(let k=blk.from;k<=blk.to;k++){const a=S.answers[k];if(a)gs.add(String(a).toUpperCase())}return gs.size===cs.size&&[...gs].every(x=>cs.has(x))}
+  if(multiBlockFor(n)){const blk=multiBlockFor(n);const us=new Set();for(let k=blk.from;k<=blk.to;k++){const a=S.answers[k];if(a)us.add(String(a).toUpperCase())}return us.has(String(ANSWERS[n]||'').toUpperCase())}
   const q=QUESTIONS.find(x=>x.id===n);
   const isLetter=q&&['mcq','info','heads','ends'].includes(q.type);
   const user=S.answers[n];
@@ -583,12 +587,12 @@ function chk(n){
 }
 
 function showResults(){
-  S.submitted=true;const ids=allIds();let score=0;ids.forEach(n=>{if(chk(n))score++});
+  S.submitted=true;clearPersist();const ids=allIds();let score=0;ids.forEach(n=>{if(chk(n))score++});
   const bandV=getBand(score);
   const taken=S.endTime?Math.floor((S.endTime-S.startTime)/1000):3600-S.timerSecs;
   const tm=String(Math.floor(taken/60)).padStart(2,'0'),ts=String(taken%60).padStart(2,'0');
   let pcards='';[1,2,3].forEach(p=>{const pn=ids.filter(n=>pOf(n)===p);const ps=pn.filter(chk).length;pcards+='<div class="pcard"><div class="pcardn">Passage '+p+'</div><strong>'+ps+'</strong><span class="of"> / '+pn.length+'</span></div>'});
-  let rows='';[1,2,3].forEach(p=>{ids.filter(n=>pOf(n)===p).forEach(n=>{const ok=chk(n);const ua=S.answers[n];const ustr=Array.isArray(ua)?ua.join(', '):(ua||'');rows+='<div class="ans-row '+(ok?'correct':'wrong')+'"><strong>Q'+n+'</strong><span>'+(ustr?'Your answer: <strong>'+esc(ustr)+'</strong>':'<span class="muted">No answer</span>')+'</span><span>Correct: <strong>'+esc(ANSWERS[n])+'</strong></span><span class="tick '+(ok?'g':'b')+'">'+(ok?'\u2713':'\u2717')+'</span></div>'})});
+  let rows='';[1,2,3].forEach(p=>{ids.filter(n=>pOf(n)===p).forEach(n=>{const ok=chk(n);const blk=multiBlockFor(n);let ustr;if(blk){const set=[];for(let k=blk.from;k<=blk.to;k++){const a=S.answers[k];if(a)set.push(String(a).toUpperCase())}ustr=set.join(', ')}else{const ua=S.answers[n];ustr=Array.isArray(ua)?ua.join(', '):(ua||'')}rows+='<div class="ans-row '+(ok?'correct':'wrong')+'"><strong>Q'+n+'</strong><span>'+(ustr?'Your answer: <strong>'+esc(ustr)+'</strong>':'<span class="muted">No answer</span>')+'</span><span>Correct: <strong>'+esc(ANSWERS[n])+'</strong></span><span class="tick '+(ok?'g':'b')+'">'+(ok?'\u2713':'\u2717')+'</span></div>'})});
   $('resultsContent').innerHTML='<h1 style="color:var(--navy);margin-bottom:16px">Reading Test Results</h1>'+
     '<div class="score-hero"><div class="band-card"><span>Band Score</span><div class="band">'+bandV+'</div></div>'+
     '<div class="stats"><div class="stat">Raw score<strong>'+score+' / '+ids.length+'</strong></div><div class="stat">Time taken<strong>'+tm+':'+ts+'</strong></div><div class="stat">Passages<strong>3</strong></div><div class="stat">Questions<strong>'+ids.length+'</strong></div></div></div>'+
@@ -624,7 +628,7 @@ $('fontScale').addEventListener('input',e=>applyScale(e.target.value,$('lineScal
 $('lineScale').addEventListener('input',e=>applyScale($('fontScale').value,e.target.value));
 $('setReset').addEventListener('click',()=>{$('fontScale').value=1;$('lineScale').value=1;applyScale(1,1);applyTheme('light')});
 document.querySelectorAll('.swatch').forEach(s=>s.addEventListener('click',()=>applyTheme(s.dataset.theme)));
-$('resetAnswers').addEventListener('click',()=>{if(S.submitted)return;if(confirm('Reset all your answers?')){S.answers={};renderQs(S.passage);renderPartsBar();$('settings').classList.remove('open')}});
+$('resetAnswers').addEventListener('click',()=>{if(S.submitted)return;if(confirm('Reset all your answers?')){S.answers={};persist();renderQs(S.passage);renderPartsBar();$('settings').classList.remove('open')}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')$('settings').classList.remove('open')});
 
 /* fullscreen */
@@ -635,7 +639,10 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')$('settings').classL
   btn.addEventListener('click',()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen().catch(()=>{})});
   document.addEventListener('fullscreenchange',upd);
 })();
-function restart(){location.reload()}
+function restart(){clearPersist();location.reload()}
+setInterval(persist,4000);
+document.addEventListener('visibilitychange',function(){if(document.hidden)persist()});
+window.addEventListener('pagehide',persist);
 
 /* smoke tests (console only) */
 (function(){const out=[];const A=(n,c)=>out.push({n,c:!!c});const ids=allIds();
@@ -646,6 +653,8 @@ function restart(){location.reload()}
   const ends=QUESTIONS.filter(q=>q.type==='ends');A('ends<=endings',ends.length<=ENDINGS.length);
   const fail=out.filter(o=>!o.c);if(fail.length)console.error('READING SMOKE FAIL',fail,'missing',missing);else console.info('Reading smoke passed ('+out.length+' checks)');
 })();
+/* ---------- resume an in-progress session after reload / tab discard ---------- */
+(function(){try{var raw=localStorage.getItem(PKEY);if(!raw)return;var st=JSON.parse(raw);if(!st||!st.deadline)return;if(st.deadline<=Date.now()){localStorage.removeItem(PKEY);return}S.answers=st.answers||{};S.phtml=st.phtml||{};S.testType=st.testType||'academic';S.deadline=st.deadline;S.startTime=st.startTime||Date.now();S.passage=st.passage||1;S.question=st.question||allIds()[0];var ht=document.getElementById('hdr-type');if(ht)ht.textContent=(S.testType==='academic'?'Academic':'General Training')+' Reading';showScreen('screen-test');renderP(S.passage);renderQs(S.passage);renderPartsBar();updateNav();startTimer();window.addEventListener('beforeunload',warnL)}catch(e){}})();
 </script>
 <!-- IELTS Hub: name modal + footer + auto score-logging. One line per page, forever. -->
 <script src="https://maqsudjon-cell.github.io/ielts-hub/js/test-page-auto.js" defer></script>
